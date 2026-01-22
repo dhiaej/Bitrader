@@ -48,10 +48,6 @@ Bitrader/
 
 ### 1. Clone the Repository
 
-```bash
-git clone https://github.com/yourusername/bitrader.git
-cd bitrader
-```
 
 ### 2. Backend Setup
 
