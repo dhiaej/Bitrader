@@ -1,0 +1,56 @@
+# FastAPI Core
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-multipart==0.0.6
+
+# Database - MySQL
+sqlalchemy==2.0.25
+pymysql==1.1.0
+cryptography==42.0.0
+alembic==1.13.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+
+# WebSocket
+websockets==12.0
+python-socketio==5.11.0
+
+# Utils
+python-dotenv==1.0.0
+email-validator==2.1.0
+python-dateutil==2.8.2
+faker==24.0.0
+
+# Background Tasks
+celery==5.3.4
+redis==5.0.1
+APScheduler==3.10.4
+
+# API Documentation
+markdown==3.5.2
+
+# Market Data & AI
+yfinance==0.2.36
+requests==2.31.0
+groq>=0.26.0
+google-generativeai
+openai>=1.0.0
+json5>=0.9.0  # JSON5 parser - more tolerant of malformed JSON
+demjson3>=3.0.6  # JSON repair library for fixing malformed JSON from AI responses
+
+# PDF Processing
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
+
+# Video Generation & Text-to-Speech
+gtts>=2.5.0  # Google Text-to-Speech (free, no API key)
+pyttsx3>=2.90  # Offline TTS fallback
+
+# Certificate Generation
+reportlab>=4.0.0
+Pillow>=10.0.0  # For image processing in certificates

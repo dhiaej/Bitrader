@@ -1,0 +1,143 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="logo-section">
+      <div class="crypto-logo">
+        <div class="coin-icon">₿</div>
+      </div>
+      <h1>Trading Simulator</h1>
+      <p class="subtitle">Welcome Back, Trader!</p>
+    </div>
+
+    <!-- Login Type Toggle -->
+    <div class="login-toggle">
+      <button 
+        type="button" 
+        class="toggle-btn" 
+        [class.active]="!showFaceLogin"
+        (click)="showFaceLogin = false">
+        Password
+      </button>
+      <button 
+        type="button" 
+        class="toggle-btn" 
+        [class.active]="showFaceLogin"
+        (click)="toggleFaceLogin()">
+        Face Login
+      </button>
+    </div>
+
+    <!-- Standard Login Form -->
+    <form *ngIf="!showFaceLogin" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          placeholder="Enter your username"
+          [class.error]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+        />
+        <span class="error-message" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+          Username is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        />
+        <span class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password is required
+        </span>
+      </div>
+
+      <div class="error-alert" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="loginForm.invalid || isLoading"
+      >
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading" class="loading-spinner">Logging in...</span>
+      </button>
+    </form>
+
+    <!-- Face Login Form -->
+    <div *ngIf="showFaceLogin" class="face-login-section">
+      <form [formGroup]="faceLoginForm" class="login-form">
+        <div class="form-group">
+          <label for="face-username">Username</label>
+          <input
+            type="text"
+            id="face-username"
+            formControlName="username"
+            placeholder="Enter your username"
+            [class.error]="faceLoginForm.get('username')?.invalid && faceLoginForm.get('username')?.touched"
+          />
+          <span class="error-message" *ngIf="faceLoginForm.get('username')?.invalid && faceLoginForm.get('username')?.touched">
+            Username is required
+          </span>
+        </div>
+      </form>
+
+      <div class="face-preview" [class.active]="isFaceCameraActive">
+        <video #faceVideo autoplay playsinline muted></video>
+        <div class="face-placeholder" *ngIf="!isFaceCameraActive">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M4 20C4 17.2386 7.58172 15 12 15C16.4183 15 20 17.2386 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <p>Click "Start Camera" to begin face login</p>
+        </div>
+        <canvas #faceCanvas hidden></canvas>
+      </div>
+
+      <div class="error-alert" *ngIf="faceLoginError">
+        {{ faceLoginError }}
+      </div>
+
+      <div class="face-actions">
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="startFaceCamera()"
+          *ngIf="!isFaceCameraActive">
+          Start Camera
+        </button>
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="stopFaceCamera()"
+          *ngIf="isFaceCameraActive">
+          Stop Camera
+        </button>
+        <button 
+          type="button" 
+          class="btn-primary"
+          (click)="captureFaceLogin()"
+          [disabled]="!isFaceCameraActive || isFaceLoggingIn || faceLoginForm.invalid"
+          *ngIf="isFaceCameraActive">
+          {{ isFaceLoggingIn ? 'Verifying...' : 'Login with Face' }}
+        </button>
+      </div>
+
+      <p class="face-hint">
+        Make sure you have registered your face in your profile settings first.
+      </p>
+    </div>
+
+    <div class="register-link">
+      Don't have an account?
+      <a routerLink="/register">Register now</a>
+      and get <strong>$10,000</strong> free!
+    </div>
+  </div>
+</div>

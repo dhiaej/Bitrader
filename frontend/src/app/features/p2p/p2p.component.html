@@ -1,0 +1,1139 @@
+<div class="p2p-container">
+  <!-- Hero Section with Info -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>P2P Crypto Marketplace</h1>
+      <p class="hero-subtitle">Auto-matching system - trades execute automatically when prices match!</p>
+      <button class="btn-learn-more" (click)="toggleInfoModal()">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z"/>
+        </svg>
+        How P2P Works
+      </button>
+    </div>
+    <div class="hero-actions">
+      <button class="btn-notifications" (click)="toggleNotifications()" [class.has-unread]="unreadNotificationsCount > 0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="notification-badge" *ngIf="unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>
+      </button>
+      <button class="btn-create-hero" (click)="toggleCreateAdForm()">
+        {{ showCreateAdForm ? '✕ Cancel' : '+ Create Advertisement' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Market Overview Dashboard -->
+  <div class="market-overview">
+    <div class="overview-header">
+      <h2>Market Overview</h2>
+      <div class="timeframe-selector">
+        <span class="timeframe-label">Real-time</span>
+        <div class="status-indicator"></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <!-- Volume Chart -->
+      <div class="stat-card-large">
+        <div class="card-header">
+          <h3>Trading Volume</h3>
+          <span class="stat-trend positive">+12.5%</span>
+        </div>
+        <div class="card-body">
+          <div class="primary-value">${{ getStatistics().totalVolume | number:'1.0-0' }}</div>
+          <div class="secondary-label">Total Liquidity Available</div>
+          <div class="mini-chart">
+            <div class="chart-bar" *ngFor="let ad of getVolumeDistribution()"
+                 [style.height.%]="ad.percent"
+                 [attr.data-currency]="ad.currency"></div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item" *ngFor="let item of getCurrencyBreakdown()">
+              <span class="legend-dot" [style.background]="item.color"></span>
+              <span class="legend-label">{{ item.currency }}</span>
+              <span class="legend-value">${{ item.volume | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Listings -->
+      <div class="stat-card-medium">
+        <div class="card-header">
+          <h3>Active Listings</h3>
+        </div>
+        <div class="card-body">
+          <div class="primary-value">{{ getStatistics().totalAds }}</div>
+          <div class="secondary-label">Total Advertisements</div>
+          <div class="split-stats">
+            <div class="split-item buy">
+              <div class="split-value">{{ getStatistics().buyAds }}</div>
+              <div class="split-label">Buy Orders</div>
+            </div>
+            <div class="split-divider"></div>
+            <div class="split-item sell">
+              <div class="split-value">{{ getStatistics().sellAds }}</div>
+              <div class="split-label">Sell Orders</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Market Activity -->
+      <div class="stat-card-medium">
+        <div class="card-header">
+          <h3>Market Activity</h3>
+        </div>
+        <div class="card-body">
+          <div class="activity-metrics">
+            <div class="metric-row">
+              <span class="metric-label">Active Traders</span>
+              <span class="metric-value">{{ getStatistics().activeTraders }}</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Online Now</span>
+              <span class="metric-value online">{{ getStatistics().onlineNow }}</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Avg. Response</span>
+              <span class="metric-value">{{ getStatistics().avgResponseTime }}</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Success Rate</span>
+              <span class="metric-value success">{{ getStatistics().completionRate }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="stat-card-wide">
+        <div class="card-header">
+          <h3>Payment Methods</h3>
+          <span class="stat-count">{{ getStatistics().paymentMethodsCount }} Available</span>
+        </div>
+        <div class="card-body">
+          <div class="payment-distribution">
+            <div class="payment-bar" *ngFor="let method of getTopPaymentMethods()"
+                 [style.width.%]="method.percent">
+              <span class="payment-label">{{ method.name }}</span>
+              <span class="payment-count">{{ method.count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trading Strategies Toggle Button -->
+  <div class="strategies-toggle-section">
+    <button class="btn-strategies-toggle" (click)="toggleStrategiesGuide()">
+      <div class="toggle-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="toggle-content">
+        <h3>Trading Strategies Guide</h3>
+        <p>{{ showStrategiesGuide ? 'Hide' : 'Show' }} professional tips for successful P2P trading</p>
+      </div>
+      <div class="toggle-arrow" [class.expanded]="showStrategiesGuide">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </button>
+  </div>
+
+  <!-- Trading Strategies Guide for New Traders -->
+  <div class="strategies-section" *ngIf="showStrategiesGuide" [@slideDown]>
+    <div class="section-header-strategies">
+      <div class="header-content">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        <div>
+          <h2>Trading Strategies Guide</h2>
+          <p>Professional tips to maximize your P2P trading success</p>
+        </div>
+      </div>
+      <span class="beginner-badge">For New Traders</span>
+    </div>
+
+    <div class="strategies-grid">
+      <!-- Strategy Card 1: Buying -->
+      <div class="strategy-card buy-strategy">
+        <div class="strategy-header">
+          <div class="strategy-icon buy">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+          </div>
+          <h3>Smart Buying Strategies</h3>
+        </div>
+        <div class="strategy-content">
+          <div class="strategy-item">
+            <div class="item-number">1</div>
+            <div class="item-text">
+              <strong>Compare Market Prices</strong>
+              <p>Check multiple sellers and look for prices close to market rates. Avoid offers significantly above market price.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">2</div>
+            <div class="item-text">
+              <strong>Verify Seller Reputation</strong>
+              <p>Choose sellers with high completion rates and positive feedback. Established traders are more reliable.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">3</div>
+            <div class="item-text">
+              <strong>Check Payment Methods</strong>
+              <p>Select payment methods you're comfortable with. Bank transfers are generally safer than cash transactions.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">4</div>
+            <div class="item-text">
+              <strong>Start Small</strong>
+              <p>Begin with smaller amounts to build trust and experience. Gradually increase as you become comfortable.</p>
+            </div>
+          </div>
+          <div class="strategy-tip success">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L8 14.17l7.59-7.59L17 8l-9 9z"/>
+            </svg>
+            <span><strong>Pro Tip:</strong> Set price alerts to catch favorable market conditions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy Card 2: Selling -->
+      <div class="strategy-card sell-strategy">
+        <div class="strategy-header">
+          <div class="strategy-icon sell">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+          </div>
+          <h3>Smart Selling Strategies</h3>
+        </div>
+        <div class="strategy-content">
+          <div class="strategy-item">
+            <div class="item-number">1</div>
+            <div class="item-text">
+              <strong>Competitive Pricing</strong>
+              <p>Set prices at or slightly below market rates to attract buyers quickly. Monitor competitor prices regularly.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">2</div>
+            <div class="item-text">
+              <strong>Verify Payments First</strong>
+              <p>NEVER release crypto before confirming payment receipt. Double-check transaction details in your account.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">3</div>
+            <div class="item-text">
+              <strong>Offer Multiple Payment Options</strong>
+              <p>Accept various payment methods to reach more buyers. More options = faster sales.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">4</div>
+            <div class="item-text">
+              <strong>Set Clear Terms</strong>
+              <p>Write detailed terms & conditions. Specify payment time limits and any special requirements upfront.</p>
+            </div>
+          </div>
+          <div class="strategy-tip warning">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+            </svg>
+            <span><strong>Warning:</strong> Always wait for payment confirmation before releasing funds</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy Card 3: Risk Management -->
+      <div class="strategy-card risk-strategy">
+        <div class="strategy-header">
+          <div class="strategy-icon risk">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+          </div>
+          <h3>Risk Management</h3>
+        </div>
+        <div class="strategy-content">
+          <div class="strategy-item">
+            <div class="item-number">1</div>
+            <div class="item-text">
+              <strong>Use Escrow Protection</strong>
+              <p>Our platform holds crypto in escrow until payment is confirmed. This protects both parties from fraud.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">2</div>
+            <div class="item-text">
+              <strong>Watch for Scams</strong>
+              <p>Beware of fake payment screenshots, urgent pressure tactics, or deals that seem too good to be true.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">3</div>
+            <div class="item-text">
+              <strong>Respect Time Limits</strong>
+              <p>Complete payments within the specified time window. Late payments may result in trade cancellation.</p>
+            </div>
+          </div>
+          <div class="strategy-item">
+            <div class="item-number">4</div>
+            <div class="item-text">
+              <strong>Use Dispute Resolution</strong>
+              <p>If issues arise, contact support immediately. Provide clear evidence and maintain professional communication.</p>
+            </div>
+          </div>
+          <div class="strategy-tip info">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+            <span><strong>Remember:</strong> If something feels wrong, cancel the trade and report it</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best Practices Banner -->
+      <div class="best-practices-banner">
+        <div class="banner-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="banner-content">
+          <h3>General Best Practices</h3>
+          <div class="practices-list">
+            <div class="practice-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+              </svg>
+              <span>Always communicate through the platform's chat system</span>
+            </div>
+            <div class="practice-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+              </svg>
+              <span>Keep records of all transactions and communications</span>
+            </div>
+            <div class="practice-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+              </svg>
+              <span>Enable two-factor authentication (2FA) on your account</span>
+            </div>
+            <div class="practice-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+              </svg>
+              <span>Review trader profiles and ratings before engaging</span>
+            </div>
+            <div class="practice-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+              </svg>
+              <span>Report suspicious activity immediately to support</span>
+            </div>
+            <div class="practice-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+              </svg>
+              <span>Read and understand all terms before accepting trades</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Panel -->
+  <div class="notifications-panel" *ngIf="showNotifications">
+    <div class="notifications-header">
+      <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Notifications
+      </h3>
+      <button class="btn-close-notifications" (click)="toggleNotifications()">×</button>
+    </div>
+    <div class="notifications-list">
+      <div
+        *ngFor="let notification of notifications"
+        class="notification-item"
+        [class.unread]="!notification.is_read"
+        (click)="markNotificationAsRead(notification)"
+      >
+        <div class="notification-icon">{{ getNotificationIcon(notification.type) }}</div>
+        <div class="notification-content">
+          <div class="notification-title">{{ notification.title }}</div>
+          <div class="notification-message">{{ notification.message }}</div>
+          <div class="notification-time">{{ formatNotificationTime(notification.created_at) }}</div>
+
+          <!-- Partial Match Action Button -->
+          <button
+            *ngIf="notification.type === 'PARTIAL_MATCH' && !notification.is_read"
+            class="btn-accept-match"
+            (click)="acceptPartialMatch(notification); $event.stopPropagation()"
+          >
+            Accept Partial Match
+          </button>
+        </div>
+      </div>
+      <div class="no-notifications" *ngIf="notifications.length === 0">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <p>No notifications yet</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert success" *ngIf="successMessage">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-2 15l-5-5 1.41-1.41L8 12.17l7.59-7.59L17 6l-9 9z"/>
+    </svg>
+    {{ successMessage }}
+  </div>
+  <div class="alert error" *ngIf="errorMessage">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Create Ad Form -->
+  <div class="create-ad-panel" *ngIf="showCreateAdForm">
+    <h2>Create New Advertisement</h2>
+    <form [formGroup]="createAdForm" (ngSubmit)="onCreateAd()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <select formControlName="ad_type">
+            <option value="BUY">Buy</option>
+            <option value="SELL">Sell</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cryptocurrency</label>
+          <select formControlName="currency">
+            <option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fiat Currency</label>
+          <select formControlName="fiat_currency">
+            <option *ngFor="let fiat of fiatCurrencies" [value]="fiat">{{ fiat }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price per Unit</label>
+          <div class="price-input-group">
+            <input type="number" formControlName="price" placeholder="0.00" step="0.01" />
+            <button type="button" class="btn-market-price" (click)="updatePriceFromMarket()" title="Use current market price">
+              <span>Market Price</span>
+            </button>
+          </div>
+          <div class="market-price-hint" *ngIf="getRealTimePrice(createAdForm.get('currency')?.value, createAdForm.get('fiat_currency')?.value)">
+            Current market: {{ formatPrice(getRealTimePrice(createAdForm.get('currency')?.value, createAdForm.get('fiat_currency')?.value)!) }} {{ createAdForm.get('fiat_currency')?.value }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Available Amount</label>
+          <input type="number" formControlName="available_amount" placeholder="0.00000000" step="0.00000001" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Min Limit</label>
+          <input type="number" formControlName="min_limit" placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label>Max Limit</label>
+          <input type="number" formControlName="max_limit" placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label>Payment Time (minutes)</label>
+          <input type="number" formControlName="payment_time_limit" placeholder="30" />
+        </div>
+      </div>
+
+      <div class="form-group payment-methods-section">
+        <label class="section-label">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+          Payment Methods
+          <span class="helper-text">Select all payment methods you accept</span>
+        </label>
+        <div class="payment-methods-grid">
+          <label *ngFor="let method of paymentMethods" class="payment-method-card">
+            <input type="checkbox" [value]="method" (change)="togglePaymentMethod($event, method)" />
+            <div class="card-content">
+              <div class="method-icon">
+                <svg *ngIf="method === 'Bank Transfer'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 3.18l7 3.12v4.7c0 4.7-3.18 9.08-7 10.32-3.82-1.24-7-5.62-7-10.32V7.3l7-3.12z"/>
+                </svg>
+                <svg *ngIf="method === 'PayPal'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-2-2H3V6h14v6zm-7 6l-1 5H2l1-5h7zm15.18.77L23 24h-7l1.2-5.23L21 18l3.18.77z"/>
+                </svg>
+                <svg *ngIf="method === 'Wise'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                </svg>
+                <svg *ngIf="method === 'Revolut'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                </svg>
+                <svg *ngIf="method === 'Venmo'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V16h-2.67v2.09h-.63V16H7.44v-.63h2.67v-2.81H7.44v-.63h2.67V9.84h.63v2.09h2.67V9.84h.63v2.09h2.67v.63h-2.67v2.81h2.67V16h-2.67v2.09z"/>
+                </svg>
+                <svg *ngIf="method === 'Zelle'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 6h18V4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18v-2H3V6zm11 9l-4-4 4-4V9h4v2h-4v4z"/>
+                </svg>
+                <svg *ngIf="method === 'Cash App'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/>
+                </svg>
+                <svg *ngIf="method === 'Western Union'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <svg *ngIf="method === 'MoneyGram'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm-1 14H5c-.55 0-1-.45-1-1v-5h16v5c0 .55-.45 1-1 1zm1-10H4V6h16v2z"/>
+                </svg>
+                <svg *ngIf="method === 'N26'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                </svg>
+              </div>
+              <span class="method-name">{{ method }}</span>
+              <div class="check-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+          </label>
+        </div>
+        <div class="selected-count" *ngIf="getSelectedPaymentMethodsCount() > 0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+          </svg>
+          {{ getSelectedPaymentMethodsCount() }} payment method(s) selected
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Terms & Conditions</label>
+        <textarea formControlName="terms_conditions" rows="3" placeholder="Enter your terms..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="createAdForm.invalid || isLoading">
+        {{ isLoading ? 'Creating...' : 'Create Advertisement' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- Advertisements List -->
+  <div class="ads-section">
+    <div class="section-header">
+      <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+        Available Advertisements
+        <span class="count">{{ filteredAdvertisements.length }}</span>
+      </h2>
+
+      <!-- Filters -->
+      <div class="filters-container">
+        <div class="filter-group">
+          <select [(ngModel)]="filterAdType" (change)="onFilterChange()">
+            <option value="ALL">All Types</option>
+            <option value="BUY">Buy Offers</option>
+            <option value="SELL">Sell Offers</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <select [(ngModel)]="filterCurrency" (change)="onFilterChange()">
+            <option value="ALL">All Currencies</option>
+            <option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <select [(ngModel)]="filterIsActive" (change)="onFilterChange()">
+            <option value="ACTIVE">Active Only</option>
+            <option value="INACTIVE">Inactive/Expired</option>
+            <option value="ALL">All Advertisements</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <select [(ngModel)]="filterPaymentMethod" (change)="onFilterChange()">
+            <option value="ALL">All Payments</option>
+            <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+          </select>
+        </div>
+
+        <div class="search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onFilterChange()"
+            placeholder="Search everything..."
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="ads-grid">
+      <div class="ad-card" *ngFor="let ad of filteredAdvertisements">
+        <div class="ad-header">
+          <span [class]="'ad-type ' + ad.ad_type.toLowerCase()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path *ngIf="ad.ad_type === 'SELL'" d="M7 14l5-5 5 5H7z"/>
+              <path *ngIf="ad.ad_type === 'BUY'" d="M7 10l5 5 5-5H7z"/>
+            </svg>
+            {{ ad.ad_type }}
+          </span>
+          <span class="currency">{{ ad.currency }}/{{ ad.fiat_currency }}</span>
+        </div>
+
+        <div class="ad-price-big">
+          <div class="price-label">Price</div>
+          <div class="price-value">{{ formatPrice(ad.price) }}</div>
+          <div class="price-currency">{{ ad.fiat_currency }}</div>
+          <div class="market-price-indicator" *ngIf="getRealTimePrice(ad.currency, ad.fiat_currency)">
+            <span class="market-label">Market:</span>
+            <span class="market-value">{{ formatPrice(getRealTimePrice(ad.currency, ad.fiat_currency)!) }}</span>
+            <span class="price-diff"
+                  [class.above-market]="+ad.price > (getRealTimePrice(ad.currency, ad.fiat_currency) || 0)"
+                  [class.below-market]="+ad.price < (getRealTimePrice(ad.currency, ad.fiat_currency) || 0)">
+              <ng-container *ngIf="getRealTimePrice(ad.currency, ad.fiat_currency) as mp">
+                <ng-container *ngIf="(+ad.price - mp) / mp * 100 > 0.01">+{{ ((+ad.price - mp) / mp * 100).toFixed(2) }}%</ng-container>
+                <ng-container *ngIf="(mp - +ad.price) / mp * 100 > 0.01">{{ ((+ad.price - mp) / mp * 100).toFixed(2) }}%</ng-container>
+                <ng-container *ngIf="(+ad.price - mp) / mp * 100 <= 0.01 && (mp - +ad.price) / mp * 100 <= 0.01">≈ Market</ng-container>
+              </ng-container>
+            </span>
+          </div>
+        </div>
+
+        <div class="ad-info">
+          <div class="info-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            <span class="label">Available:</span>
+            <span class="value">{{ formatAmount(ad.available_amount) }} {{ ad.currency }}</span>
+          </div>
+          <div class="info-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <polyline points="5 12 12 5 19 12"/>
+            </svg>
+            <span class="label">Limits:</span>
+            <span class="value">{{ formatPrice(ad.min_limit) }} - {{ formatPrice(ad.max_limit) }}</span>
+          </div>
+          <div class="info-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+            <span class="label">Payment:</span>
+            <span class="value">{{ (ad.payment_methods && ad.payment_methods.length > 0) ? ad.payment_methods.slice(0, 2).join(', ') : 'N/A' }}</span>
+          </div>
+          <div class="info-row" *ngIf="ad.payment_methods && ad.payment_methods.length > 2">
+            <span class="more-methods">+{{ ad.payment_methods.length - 2 }} more</span>
+          </div>
+        </div>
+
+        <button class="btn-trade" (click)="openTradeModal(ad)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+          {{ getTradeTypeLabel(ad) }} {{ ad.currency }}
+        </button>
+      </div>
+
+      <div class="no-ads" *ngIf="filteredAdvertisements.length === 0">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>No advertisements found</p>
+        <p class="sub">Try adjusting your filters or create your own ad!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Trades -->
+  <div class="trades-section" *ngIf="myTrades.length > 0">
+    <h2>My Trades</h2>
+    <div class="trades-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let trade of myTrades">
+            <td>#{{ trade.id }}</td>
+            <td>{{ trade.currency }}</td>
+            <td>{{ formatAmount(trade.amount) }}</td>
+            <td>{{ formatPrice(trade.price) }}</td>
+            <td>{{ formatPrice(trade.total_fiat) }} {{ trade.fiat_currency }}</td>
+            <td><span [class]="'badge-' + trade.status.toLowerCase()">{{ trade.status }}</span></td>
+            <td>
+              <button
+                class="btn-action"
+                *ngIf="trade.status === 'PENDING'"
+                (click)="markPaymentSent(trade.id)"
+              >
+                Mark Paid
+              </button>
+              <button
+                class="btn-action success"
+                *ngIf="trade.status === 'PAYMENT_SENT'"
+                (click)="confirmPayment(trade.id)"
+              >
+                Confirm
+              </button>
+              <button
+                class="btn-action warning"
+                *ngIf="canFileDispute(trade)"
+                (click)="openDisputeModal(trade)"
+                title="File a dispute for this trade"
+              >
+                ⚠️ Dispute
+              </button>
+              <button
+                class="btn-action danger"
+                *ngIf="trade.status === 'PENDING' || trade.status === 'PAYMENT_SENT'"
+                (click)="cancelTrade(trade.id)"
+              >
+                Cancel
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Trade Modal -->
+<div class="modal-overlay" *ngIf="showTradeModal" (click)="closeTradeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        Initiate Trade
+      </h2>
+      <button class="btn-close" (click)="closeTradeModal()">×</button>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedAd">
+      <div class="ad-summary">
+        <div class="summary-row">
+          <span class="label">Action:</span>
+          <span class="value highlight">{{ getTradeTypeLabel(selectedAd) }} {{ selectedAd.currency }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Price:</span>
+          <span class="value">{{ formatPrice(selectedAd.price) }} {{ selectedAd.fiat_currency }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Available:</span>
+          <span class="value">{{ formatAmount(selectedAd.available_amount) }} {{ selectedAd.currency }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Time Limit:</span>
+          <span class="value">{{ selectedAd.payment_time_limit }} minutes</span>
+        </div>
+      </div>
+
+      <form [formGroup]="initiateTradeForm" (ngSubmit)="onInitiateTrade()">
+        <div class="form-group">
+          <label>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Amount ({{ selectedAd.fiat_currency }})
+          </label>
+          <input
+            type="number"
+            formControlName="amount"
+            [min]="selectedAd.min_limit"
+            [max]="selectedAd.max_limit"
+            step="0.01"
+            placeholder="Enter amount in {{ selectedAd.fiat_currency }}"
+          />
+          <div class="input-hint">
+            Min: {{ formatPrice(selectedAd.min_limit) }} - Max: {{ formatPrice(selectedAd.max_limit) }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+            Payment Method
+          </label>
+          <select formControlName="payment_method">
+            <option *ngFor="let method of selectedAd.payment_methods" [value]="method">
+              {{ method }}
+            </option>
+          </select>
+        </div>
+
+        <div class="trade-summary" *ngIf="calculateTotal() > 0">
+          <div class="summary-item">
+            <span>You will {{ getTradeTypeLabel(selectedAd) === 'Buy' ? 'receive' : 'send' }}:</span>
+            <span class="total-amount">{{ formatAmount(calculateCryptoAmount()) }} {{ selectedAd.currency }}</span>
+          </div>
+          <div class="summary-item">
+            <span>Total payment:</span>
+            <span class="total-amount">{{ formatPrice(calculateTotal()) }} {{ selectedAd.fiat_currency }}</span>
+          </div>
+        </div>
+
+        <div class="alert error" *ngIf="errorMessage">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z"/>
+          </svg>
+          {{ errorMessage }}
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="initiateTradeForm.invalid || isLoading">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          {{ isLoading ? 'Initiating...' : 'Confirm Trade' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal-overlay info-modal" *ngIf="showInfoModal" (click)="toggleInfoModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+        Understanding P2P Trading
+      </h2>
+      <button class="btn-close" (click)="toggleInfoModal()">×</button>
+    </div>
+
+    <div class="modal-body info-content">
+      <div class="info-section">
+        <h3>🤝 What is P2P Trading?</h3>
+        <p>
+          Peer-to-Peer (P2P) trading allows you to <strong>buy and sell cryptocurrencies directly with other users</strong>
+          without intermediaries. Our platform features an <strong>intelligent auto-matching system</strong> that automatically
+          pairs compatible buy and sell orders for instant execution!
+        </p>
+      </div>
+
+      <div class="info-section highlight">
+        <h3>Auto-Matching System</h3>
+        <p>
+          When you create an advertisement, our system instantly searches for matching opposite orders. If we find a perfect match
+          (same price, crypto, fiat, and compatible payment method), <strong>the trade executes automatically</strong> and both
+          parties receive instant notifications!
+        </p>
+        <div class="auto-match-example">
+          <div class="match-item">
+            <strong>User A:</strong> SELL 1 BTC @ $50,000 (Bank Transfer)
+          </div>
+          <div class="match-arrow">AUTO-MATCH</div>
+          <div class="match-item">
+            <strong>User B:</strong> BUY 1 BTC @ $50,000 (Bank Transfer)
+          </div>
+          <div class="match-result">
+            = Trade Created Instantly! 🎉
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>How It Works</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <strong>Create Advertisement</strong>
+              <p>Post your offer with price, amount, and payment methods</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <strong>Auto-Match Detection</strong>
+              <p>System instantly searches for compatible opposite orders</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <strong>Instant Execution</strong>
+              <p>Perfect matches create trades automatically with escrow protection</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <strong>Get Notified</strong>
+              <p>Both users receive instant notifications with trade details</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>Notification Types</h3>
+        <ul class="benefits-list">
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+            <strong>Perfect Match:</strong> Automatic trade creation with full amount
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+            <strong>Partial Match:</strong> Notification to accept partial amount trades
+          </li>
+        </ul>
+      </div>
+
+      <div class="info-section">
+        <h3>Key Benefits</h3>
+        <ul class="benefits-list">
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+            <strong>Lightning Fast:</strong> Trades execute instantly when prices match
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+            <strong>Zero Waiting:</strong> No need to manually browse and initiate
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+            <strong>Secure Escrow:</strong> Funds locked until payment confirmed
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+            <strong>Multiple Payments:</strong> Bank transfer, PayPal, and more
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+            <strong>Fair Pricing:</strong> Your price, your terms
+          </li>
+        </ul>
+      </div>
+
+      <div class="info-section warning">
+        <h3>⚠️ Important Tips</h3>
+        <ul>
+          <li>Check notifications regularly for auto-match alerts</li>
+          <li>Always verify payment before releasing cryptocurrency</li>
+          <li>Exact price match required for auto-execution</li>
+          <li>Partial matches require manual acceptance</li>
+          <li>Respect payment time limits to avoid disputes</li>
+        </ul>
+      </div>
+
+      <button class="btn-submit" (click)="toggleInfoModal()">Got It!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dispute Modal -->
+<div class="modal-overlay dispute-modal-overlay" *ngIf="showDisputeModal" (click)="closeDisputeModal()">
+  <div class="modal-content dispute-modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header dispute-modal-header">
+      <div class="dispute-header-content">
+        <div class="dispute-icon-wrapper">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 8V12M12 16H12.01" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="dispute-header-text">
+          <h2>File a Dispute</h2>
+          <p class="dispute-subtitle">Report an issue with this trade</p>
+        </div>
+      </div>
+      <button class="btn-close dispute-close" (click)="closeDisputeModal()">×</button>
+    </div>
+
+    <div class="modal-body dispute-modal-body" *ngIf="selectedTradeForDispute">
+      <div class="dispute-warning-banner">
+        <div class="warning-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="warning-content">
+          <strong>Important Notice</strong>
+          <p>Filing a dispute will lock the trade and notify an administrator for resolution. Only proceed if you're experiencing legitimate issues such as non-payment, incorrect amount, or unresponsive counterparty.</p>
+        </div>
+      </div>
+
+      <div class="dispute-trade-summary">
+        <div class="summary-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+            <line x1="15" y1="3" x2="15" y2="21"></line>
+          </svg>
+          <h3>Trade Information</h3>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="item-label">Trade ID</span>
+            <span class="item-value">#{{ selectedTradeForDispute.id }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="item-label">Currency</span>
+            <span class="item-value crypto">{{ selectedTradeForDispute.currency }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="item-label">Amount</span>
+            <span class="item-value">{{ formatAmount(selectedTradeForDispute.amount) }} {{ selectedTradeForDispute.currency }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="item-label">Total Value</span>
+            <span class="item-value fiat">{{ formatPrice(selectedTradeForDispute.total_fiat) }} {{ selectedTradeForDispute.fiat_currency }}</span>
+          </div>
+          <div class="summary-item full-width">
+            <span class="item-label">Current Status</span>
+            <span [class]="'status-badge badge-' + selectedTradeForDispute.status.toLowerCase()">{{ selectedTradeForDispute.status }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dispute-form-section">
+        <label class="dispute-label">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Describe the Issue <span class="required-mark">*</span></span>
+        </label>
+        <div class="textarea-wrapper">
+          <textarea
+            [(ngModel)]="disputeReason"
+            placeholder="Provide a detailed explanation of the issue...&#10;&#10;Examples:&#10;• Payment not received within the agreed timeframe&#10;• Incorrect payment amount sent&#10;• Seller/Buyer is unresponsive to messages&#10;• Wrong payment method used"
+            rows="6"
+            class="dispute-textarea"
+            [class.has-content]="disputeReason.trim()"
+          ></textarea>
+          <div class="character-count" [class.warning]="disputeReason.length < 20">
+            {{ disputeReason.length }} characters (minimum 20 recommended)
+          </div>
+        </div>
+        <div class="input-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Be specific and provide as much detail as possible. This helps administrators resolve your dispute efficiently.
+        </div>
+      </div>
+
+      <div class="alert alert-error dispute-error" *ngIf="errorMessage">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        {{ errorMessage }}
+      </div>
+    </div>
+
+    <div class="modal-footer dispute-modal-footer">
+      <button class="btn-cancel dispute-btn-cancel" (click)="closeDisputeModal()" [disabled]="filingDispute">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Cancel
+      </button>
+      <button
+        class="btn-submit dispute-btn-submit"
+        (click)="fileDispute()"
+        [disabled]="!disputeReason.trim() || filingDispute"
+        [class.loading]="filingDispute"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="!filingDispute">
+          <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z"></path>
+          <path d="M12 8V12M12 16H12.01" stroke-width="2.5"></path>
+        </svg>
+        <div class="spinner" *ngIf="filingDispute"></div>
+        {{ filingDispute ? 'Submitting Dispute...' : 'File Dispute' }}
+      </button>
+    </div>
+  </div>
+</div>

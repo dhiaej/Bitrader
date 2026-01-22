@@ -1,0 +1,124 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="logo-section">
+      <div class="crypto-logo">
+        <div class="coin-icon">₿</div>
+      </div>
+      <h1>Start Trading Today</h1>
+      <p class="subtitle">Register and get <strong class="bonus">$10,000</strong> virtual money!</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          placeholder="Choose a username"
+          [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+        />
+        <span class="error-message" *ngIf="registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched">
+          Username is required
+        </span>
+        <span class="error-message" *ngIf="registerForm.get('username')?.hasError('minlength') && registerForm.get('username')?.touched">
+          Username must be at least 3 characters
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          placeholder="your@email.com"
+          [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        />
+        <span class="error-message" *ngIf="registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched">
+          Email is required
+        </span>
+        <span class="error-message" *ngIf="registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched">
+          Invalid email format
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input
+          type="text"
+          id="full_name"
+          formControlName="full_name"
+          placeholder="Your full name"
+          [class.error]="registerForm.get('full_name')?.invalid && registerForm.get('full_name')?.touched"
+        />
+        <span class="error-message" *ngIf="registerForm.get('full_name')?.invalid && registerForm.get('full_name')?.touched">
+          Full name is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Create a password"
+          [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        />
+        <span class="error-message" *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched">
+          Password is required
+        </span>
+        <span class="error-message" *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched">
+          Password must be at least 6 characters
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input
+          type="password"
+          id="confirm_password"
+          formControlName="confirm_password"
+          placeholder="Confirm your password"
+          [class.error]="registerForm.get('confirm_password')?.invalid && registerForm.get('confirm_password')?.touched"
+        />
+        <span class="error-message" *ngIf="registerForm.get('confirm_password')?.hasError('passwordMismatch') && registerForm.get('confirm_password')?.touched">
+          Passwords don't match
+        </span>
+      </div>
+
+      <div class="bonus-info">
+        <div class="bonus-card">
+          <span class="icon">🎁</span>
+          <div class="bonus-text">
+            <strong>Welcome Bonus</strong>
+            <p>Get $10,000 USD + 0.5 BTC + 5 ETH + $5,000 USDT</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-alert" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="success-alert" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="registerForm.invalid || isLoading"
+      >
+        <span *ngIf="!isLoading">Create Account</span>
+        <span *ngIf="isLoading" class="loading-spinner">Creating account...</span>
+      </button>
+    </form>
+
+    <div class="login-link">
+      Already have an account?
+      <a routerLink="/login">Login here</a>
+    </div>
+  </div>
+</div>

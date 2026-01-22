@@ -1,0 +1,548 @@
+<div class="formation-container">
+  <!-- Header -->
+  <div class="formation-header">
+    <div class="header-content">
+      <div>
+        <h1>Trading Courses</h1>
+        <p class="subtitle">Learn trading with AI Gemini</p>
+      </div>
+      <div class="header-actions">
+        <button (click)="toggleGenerator()" class="btn-generate-course">
+          <span>🚀</span>
+          <span>{{ showGenerator() ? 'Hide' : 'Generate' }} a Course</span>
+        </button>
+        @if (isAdmin()) {
+          <button (click)="toggleYouTubeForm()" class="btn-upload-pdf">
+            <span>📺</span>
+            <span>{{ showYouTubeForm() ? 'Hide' : 'Create' }} a YouTube Formation</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube Formation Creation Panel -->
+  @if (showYouTubeForm() && isAdmin()) {
+    <div class="pdf-upload-panel" [@fadeIn]>
+      <div class="generator-header-panel">
+        <h2>📺 Create a Formation with YouTube Videos</h2>
+        <button (click)="toggleYouTubeForm()" class="btn-close">×</button>
+      </div>
+      
+      <div class="upload-form">
+        <div class="form-group">
+          <label for="youtube-title">Formation Title *</label>
+          <input
+            type="text"
+            id="youtube-title"
+            [(ngModel)]="youtubeTitle"
+            [disabled]="isCreating()"
+            placeholder="Ex: Introduction to Trading"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="youtube-description">Description (optional)</label>
+          <textarea
+            id="youtube-description"
+            [(ngModel)]="youtubeDescription"
+            [disabled]="isCreating()"
+            placeholder="Formation description"
+            class="form-textarea"
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="youtube-level">Level</label>
+          <select
+            id="youtube-level"
+            [(ngModel)]="youtubeLevel"
+            [disabled]="isCreating()"
+            class="form-select"
+          >
+            <option value="BEGINNER">Beginner</option>
+            <option value="INTERMEDIATE">Intermediate</option>
+            <option value="ADVANCED">Advanced</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>YouTube Videos *</label>
+          <div class="youtube-urls-list">
+            @for (url of youtubeUrls(); track $index) {
+              <div class="youtube-url-item">
+                <div class="url-input-group">
+                  <input
+                    type="text"
+                    [value]="getYouTubeUrl($index)"
+                    (input)="updateYouTubeUrl($index, $any($event.target).value)"
+                    [disabled]="isCreating()"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    class="form-input youtube-url-input"
+                  />
+                  <input
+                    type="text"
+                    [value]="getYouTubeTitle($index)"
+                    (input)="updateYouTubeTitle($index, $any($event.target).value)"
+                    [disabled]="isCreating()"
+                    placeholder="Video title (optional)"
+                    class="form-input youtube-title-input"
+                  />
+                  @if (youtubeUrls().length > 1) {
+                    <button
+                      (click)="removeYouTubeUrl($index)"
+                      [disabled]="isCreating()"
+                      class="btn-remove-url"
+                    >
+                      ✕
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            <button
+              (click)="addYouTubeUrl()"
+              [disabled]="isCreating()"
+              class="btn-add-url"
+            >
+              + Add a video
+            </button>
+          </div>
+        </div>
+        
+        @if (createError()) {
+          <div class="error-message">
+            <p>❌ {{ createError() }}</p>
+          </div>
+        }
+        
+        @if (createSuccess()) {
+          <div class="success-message">
+            <p>✅ {{ createSuccess() }}</p>
+          </div>
+        }
+        
+        <button
+          (click)="createYouTubeFormation()"
+          [disabled]="!canCreateYouTubeFormation()"
+          class="btn-upload"
+        >
+          @if (isCreating()) {
+            <span class="spinner"></span>
+            Creating...
+          } @else {
+            📺 Create Formation
+          }
+        </button>
+        
+        <div class="upload-info">
+          <p><strong>ℹ️ Instructions:</strong></p>
+          <ul>
+            <li>✓ Enter the formation title</li>
+            <li>✓ Add YouTube video URLs (one per line)</li>
+            <li>✓ Videos will be displayed in order</li>
+            <li>✓ Users will need to complete each video before moving to the next one</li>
+          </ul>
+          <p class="note">💡 Accepted URL formats: youtube.com/watch?v=..., youtu.be/..., youtube.com/embed/...</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Course Generator Panel -->
+  @if (showGenerator()) {
+    <div class="course-generator-panel" [@fadeIn]>
+      <div class="generator-header-panel">
+        <h2>Course Generator</h2>
+        <button (click)="toggleGenerator()" class="btn-close">×</button>
+      </div>
+      
+      <div class="generator-form">
+        <div class="form-group">
+          <label for="generator-symbol">Choose a Cryptocurrency</label>
+          <input
+            type="text"
+            id="generator-symbol"
+            [(ngModel)]="generatorSymbol"
+            [disabled]="isGenerating()"
+            placeholder="Ex: bitcoin, ethereum, BTC, ETH, solana..."
+            class="form-input"
+            (keyup.enter)="generateCourse()"
+          />
+          <small class="form-hint">
+            💡 You can enter the name (bitcoin, ethereum) or symbol (BTC, ETH) of the cryptocurrency
+          </small>
+        </div>
+        
+        <div class="form-group">
+          <label for="generator-level">Course Level</label>
+          <select
+            id="generator-level"
+            [(ngModel)]="generatorLevel"
+            [disabled]="isGenerating()"
+            class="form-select"
+          >
+            <option value="BEGINNER">Beginner</option>
+            <option value="INTERMEDIATE">Intermediate</option>
+            <option value="ADVANCED">Advanced</option>
+          </select>
+        </div>
+        
+        <button
+          (click)="generateCourse()"
+          [disabled]="!generatorSymbol() || isGenerating()"
+          class="btn-generate"
+        >
+          @if (isGenerating()) {
+            <span class="spinner"></span>
+            Generating...
+          } @else {
+            🚀 Generate Course
+          }
+        </button>
+      </div>
+
+      @if (generatorError()) {
+        <div class="error-message">
+          <p>❌ {{ generatorError() }}</p>
+        </div>
+      }
+
+      @if (generatedCourse(); as course) {
+        <div class="generated-course-preview" [@fadeIn]>
+          <h3>Generated Course Preview</h3>
+          
+          <div class="preview-info">
+            <h4>{{ course.title }}</h4>
+            <p>{{ course.description }}</p>
+            <div class="preview-meta">
+              <span><strong>Level:</strong> {{ course.level }}</span>
+              <span><strong>Duration:</strong> {{ course.estimated_duration }} min</span>
+              <span><strong>Lessons:</strong> {{ course.content_json?.length || 0 }}</span>
+            </div>
+          </div>
+          
+          <div class="preview-actions">
+            <button
+              (click)="saveGeneratedCourse()"
+              [disabled]="isGenerating()"
+              class="btn-save"
+            >
+              @if (isGenerating()) {
+                <span class="spinner"></span>
+                Saving...
+              } @else {
+                💾 Save Course
+              }
+            </button>
+            <button
+              (click)="generatedCourse.set(null)"
+              [disabled]="isGenerating()"
+              class="btn-cancel"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="formation-grid">
+    <!-- Left Sidebar - Formations List -->
+    <div class="formations-sidebar">
+      <div class="sidebar-header">
+        <h2>Available Courses</h2>
+        
+        <!-- Filters -->
+        <div class="filters">
+          <button
+            (click)="filterByLevel('ALL')"
+            [class.active]="selectedLevel() === 'ALL'"
+            class="filter-btn"
+          >
+            All
+          </button>
+          <button
+            (click)="filterByLevel('BEGINNER')"
+            [class.active]="selectedLevel() === 'BEGINNER'"
+            [class.beginner]="true"
+            class="filter-btn"
+          >
+            Beginner
+          </button>
+          <button
+            (click)="filterByLevel('INTERMEDIATE')"
+            [class.active]="selectedLevel() === 'INTERMEDIATE'"
+            [class.intermediate]="true"
+            class="filter-btn"
+          >
+            Intermediate
+          </button>
+          <button
+            (click)="filterByLevel('ADVANCED')"
+            [class.active]="selectedLevel() === 'ADVANCED'"
+            [class.advanced]="true"
+            class="filter-btn"
+          >
+            Advanced
+          </button>
+        </div>
+      </div>
+
+      <!-- Formations List -->
+      <div class="formations-list">
+        @for (formation of filteredFormations(); track formation.id) {
+          <div
+            (click)="selectFormation(formation)"
+            [class.selected]="selectedFormation()?.id === formation.id"
+            class="formation-card"
+            [@fadeIn]
+          >
+            <h3 class="formation-title">{{ formation.title }}</h3>
+            <p class="formation-description">{{ formation.description || 'No description' }}</p>
+            <div class="formation-meta">
+              <span [class]="'level-badge ' + formation.level.toLowerCase()">
+                {{ formation.level }}
+              </span>
+              @if (formation.estimated_duration) {
+                <span class="duration">⏱️ {{ formation.estimated_duration }} min</span>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">
+            <p>No courses available</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Main Content - Formation Details & Lessons -->
+    <div class="formation-details">
+      @if (selectedFormation(); as formation) {
+        <div [@fadeIn]>
+          <div class="details-header">
+            <h2>{{ formation.title }}</h2>
+            <p class="formation-description">{{ formation.description || 'No description' }}</p>
+          </div>
+          
+          <!-- Progress Bar -->
+          @if (userProgress(); as progress) {
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-label">Progress</span>
+                <span class="progress-stats">
+                  {{ progressInfo().completed }}/{{ progressInfo().total }} lessons
+                  ({{ progressInfo().percentage.toFixed(0) }}%)
+                </span>
+              </div>
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="progressInfo().percentage"
+                ></div>
+              </div>
+            </div>
+          }
+
+          <!-- Lessons List -->
+          <div class="lessons-section">
+            @for (lesson of formation.content_json; track lesson.id) {
+              <div
+                [class.completed]="isLessonCompleted(lesson.id)"
+                [class.locked]="!canAccessLesson(lesson)"
+                class="lesson-card"
+                [@fadeIn]
+              >
+                <div class="lesson-header">
+                  <div class="lesson-icon">{{ getLessonTypeIcon(lesson.type) }}</div>
+                  <h3 class="lesson-title">{{ lesson.title }}</h3>
+                  @if (isLessonCompleted(lesson.id)) {
+                    <span class="completed-badge">✓ Completed</span>
+                  }
+                </div>
+                <p class="lesson-content">{{ lesson.data }}</p>
+                <div class="lesson-footer">
+                  @if (lesson.duration) {
+                    <span class="lesson-duration">⏱️ {{ lesson.duration }} min</span>
+                  }
+                  <div class="lesson-actions">
+                    <button
+                      (click)="navigateToLesson(lesson)"
+                      [disabled]="!canAccessLesson(lesson)"
+                      [class.disabled]="!canAccessLesson(lesson)"
+                      class="btn-view"
+                      [title]="!canAccessLesson(lesson) ? 'Complete the previous videos first' : 'View the video'"
+                    >
+                      @if (!canAccessLesson(lesson)) {
+                        🔒 Locked
+                      } @else {
+                        View
+                      }
+                    </button>
+                    @if (!isLessonCompleted(lesson.id) && canAccessLesson(lesson)) {
+                      <button
+                        (click)="completeLesson(lesson)"
+                        class="btn-complete"
+                      >
+                        Complete
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <p>No lessons available</p>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <p>Select a course to begin</p>
+        </div>
+      }
+    </div>
+
+    <!-- Video Player Modal -->
+    @if (showVideoPlayer()) {
+      <div class="video-modal-overlay" (click)="closeVideoPlayer()">
+        <div class="video-modal" (click)="$event.stopPropagation()" [@fadeIn]>
+          <div class="video-modal-header">
+            <h3>{{ currentVideoTitle() }}</h3>
+            <button (click)="closeVideoPlayer()" class="btn-close-modal">×</button>
+          </div>
+          <div class="video-modal-content">
+            @if (safeVideoUrl(); as safeUrl) {
+              @if (currentVideoUrl()?.includes('youtube.com/embed/')) {
+                <iframe
+                  [src]="safeUrl"
+                  class="youtube-player"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              } @else {
+                <video
+                  #videoPlayer
+                  [src]="currentVideoUrl()"
+                  controls
+                  class="video-player"
+                  (loadedmetadata)="onVideoLoaded(videoPlayer)"
+                >
+                  Your browser does not support video playback.
+                </video>
+              }
+            } @else if (currentVideoUrl()) {
+              <video
+                #videoPlayer
+                [src]="currentVideoUrl()"
+                controls
+                class="video-player"
+                (loadedmetadata)="onVideoLoaded(videoPlayer)"
+              >
+                Votre navigateur ne supporte pas la lecture de vidéos.
+              </video>
+            } @else {
+              <div class="video-loading">
+                <p>Loading video...</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Right Sidebar - Chat Box -->
+    <div class="chat-sidebar">
+      <div class="chat-header">
+        <h2>Chat with Gemini</h2>
+        <p class="chat-subtitle">Ask your questions about the courses</p>
+      </div>
+
+      <!-- Messages Container -->
+      <div id="chat-messages" class="chat-messages">
+        @if (messages().length === 0) {
+          <div class="empty-chat">
+            <p>👋 Hello! Ask me a question about the courses.</p>
+          </div>
+        }
+        
+        @for (message of messages(); track message.id) {
+          <div
+            [class.user-message]="message.role === 'user'"
+            [class.ai-message]="message.role === 'ai'"
+            class="message"
+            [@fadeIn]
+          >
+            <div
+              [class.user]="message.role === 'user'"
+              [class.ai]="message.role === 'ai'"
+              class="message-bubble"
+            >
+              <p class="message-content">{{ message.content }}</p>
+              <p class="message-time">
+                {{ message.timestamp | date:'HH:mm' }}
+              </p>
+            </div>
+          </div>
+        }
+
+        @if (isLoading()) {
+          <div class="loading-indicator">
+            <div class="loading-bubble">
+              <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Input Area -->
+      <div class="chat-input">
+        <form (ngSubmit)="sendMessage()">
+          <input
+            type="text"
+            [(ngModel)]="currentMessage"
+            [disabled]="isLoading()"
+            placeholder="Ask your question..."
+            name="messageInput"
+          />
+          <button
+            type="submit"
+            [disabled]="isLoading() || !currentMessage().trim()"
+          >
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Text Lesson Modal -->
+  @if (showTextLessonModal()) {
+    <div class="text-lesson-modal-overlay" (click)="closeTextLessonModal()">
+      <div class="text-lesson-modal" (click)="$event.stopPropagation()" [@fadeIn]>
+        <div class="text-lesson-modal-header">
+          <h3>{{ textLessonTitle() }}</h3>
+          <button (click)="closeTextLessonModal()" class="btn-close-modal">×</button>
+        </div>
+        <div class="text-lesson-modal-content">
+          <div class="text-lesson-content">
+            <p>{{ textLessonContent() }}</p>
+          </div>
+        </div>
+        <div class="text-lesson-modal-footer">
+          <button (click)="closeTextLessonModal()" class="btn-close-text-modal">Close</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,31 @@
+<div class="chart-wrapper">
+  <div class="top-controls">
+  <div class="timeframe-selector">
+    <button 
+      *ngFor="let tf of timeframes"
+      class="timeframe-btn"
+      [class.active]="tf === activeTimeframe"
+      (click)="setTimeframe(tf)">
+      {{ tf }}
+    </button>
+  </div>
+
+    <div class="indicator-selector">
+      <label for="indicator-select">Indicator:</label>
+      <select
+        id="indicator-select"
+        class="indicator-select"
+        [ngModel]="activeIndicator"
+        (ngModelChange)="setIndicator($event)">
+        <option *ngFor="let ind of indicators" [value]="ind.id">
+          {{ ind.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="chart-main">
+  <div #chartContainer class="chart-container"></div>
+    <div #indicatorContainer class="indicator-container"></div>
+  </div>
+</div>

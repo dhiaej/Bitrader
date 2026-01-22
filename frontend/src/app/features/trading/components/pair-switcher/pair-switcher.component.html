@@ -1,0 +1,38 @@
+<div class="pair-switcher-container">
+  <div class="header">
+    <h3>
+      <svg class="header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 16L11 12L15 14L21 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Markets
+    </h3>
+  </div>
+  <div class="pair-list" *ngIf="marketData$ | async as market">
+    <div *ngIf="market.prices; else loading">
+      <div 
+        class="pair-item" 
+        *ngFor="let item of market.prices | keyvalue"
+        (click)="navigateToPair(item.key)"
+        [routerLink]="['/trade', item.key]"
+        routerLinkActive="active">
+        <div class="pair-symbol">{{ item.key.replace('-', '/') }}</div>
+        <div class="pair-price">{{ item.value.price | number:'1.2-4' }}</div>
+        <div 
+          class="pair-change"
+          [ngClass]="{
+            'positive': item.value.change_percent >= 0, 
+            'negative': item.value.change_percent < 0
+          }">
+          {{ (item.value.change_percent / 100) | percent:'1.2-2' }}
+        </div>
+      </div>
+    </div>
+    <ng-template #loading>
+      <div class="loading-text">
+        <div class="spinner"></div>
+        <span>Loading markets...</span>
+      </div>
+    </ng-template>
+  </div>
+</div>

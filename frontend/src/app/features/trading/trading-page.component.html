@@ -1,0 +1,50 @@
+<div class="trading-page-layout">
+  <!-- Sidebar: Pair Selector -->
+  <div class="trading-sidebar">
+    <app-pair-switcher></app-pair-switcher>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="trading-main">
+    <ng-container *ngIf="symbol$ | async as symbol">
+      <!-- Market Section Header -->
+      <div class="section-header market-header">
+        <div class="header-left">
+          <h2 class="section-title">
+            <svg class="title-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 16L11 12L15 14L21 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="21" cy="8" r="2" fill="currentColor"/>
+            </svg>
+            Market Analysis
+          </h2>
+          <div class="symbol-badge">{{ symbol.replace('-', '/') }}</div>
+        </div>
+        <div class="header-right" *ngIf="currentPriceData">
+          <div class="price-display">
+            <span class="current-price">{{ currentPriceData.price | number:'1.2-4' }}</span>
+            <span
+              class="price-change"
+              [class.positive]="currentPriceData.change_percent >= 0"
+              [class.negative]="currentPriceData.change_percent < 0">
+              {{ currentPriceData.change_percent >= 0 ? '+' : '' }}{{ (currentPriceData.change_percent / 100) | percent:'1.2-2' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Section -->
+      <div class="trading-chart-container">
+        <app-candlestick-chart [symbol]="symbol"></app-candlestick-chart>
+      </div>
+
+      <!-- AI Assistant Panel -->
+      <div class="trading-panel">
+        <app-indicator-assistant
+          [symbol]="symbol"
+          [currentPrice]="currentPrice">
+        </app-indicator-assistant>
+      </div>
+    </ng-container>
+  </div>
+</div>

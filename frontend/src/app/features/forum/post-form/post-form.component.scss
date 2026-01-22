@@ -1,0 +1,186 @@
+// Design System Variables (from Simulator)
+$bg-primary: #0b0e11;
+$bg-secondary: #1E2329;
+$bg-card: #1f2937;
+$bg-input: #0f1419;
+$border-color: #2B3139;
+$text-primary: #eaecef;
+$text-secondary: #848E9C;
+$accent-gold: #F0B90B;
+$accent-green: #02c076;
+$accent-red: #f6465d;
+$accent-purple: #8b5cf6;
+
+.post-form-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, $accent-gold, $accent-purple);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-cancel {
+    padding: 10px 16px;
+    background: $bg-secondary;
+    color: $text-primary;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+
+    &:hover {
+      background: $bg-card;
+      border-color: $accent-gold;
+    }
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: $text-primary;
+    font-size: 14px;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: $bg-input;
+    color: $text-primary;
+    transition: all 0.3s;
+
+    &::placeholder { color: $text-secondary; }
+
+    &:focus {
+      outline: none;
+      border-color: $accent-gold;
+      box-shadow: 0 0 0 3px rgba($accent-gold, 0.1);
+    }
+
+    &:disabled {
+      background: $bg-secondary;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    &.content-textarea {
+      resize: vertical;
+      min-height: 200px;
+    }
+  }
+
+  .form-hint {
+    display: block;
+    margin-top: 6px;
+    color: $text-secondary;
+    font-size: 12px;
+  }
+
+  .error-text {
+    display: block;
+    margin-top: 6px;
+    color: $accent-red;
+    font-size: 12px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid $border-color;
+
+  .btn-cancel-action {
+    padding: 12px 24px;
+    background: $bg-secondary;
+    color: $text-primary;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: $bg-card;
+      border-color: $accent-gold;
+    }
+  }
+
+  .btn-submit {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, $accent-gold 0%, #FCD535 100%);
+    color: $bg-primary;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+
+    &:hover:not(:disabled) {
+      background: #FCD535;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($accent-gold, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 32px;
+
+  p {
+    font-size: 16px;
+    color: $text-secondary;
+  }
+}
+
+.error {
+  p {
+    color: $accent-red;
+  }
+}
+
+@media (max-width: 768px) {
+  .post-form-container {
+    padding: 16px;
+  }
+
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

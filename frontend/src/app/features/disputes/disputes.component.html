@@ -1,0 +1,208 @@
+<div class="disputes-page">
+  <header class="disputes-header">
+    <h1>My Disputes</h1>
+    <p class="subtitle">View and manage your P2P trade disputes</p>
+  </header>
+
+  <!-- Alert Messages -->
+  <div class="alert alert-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading disputes...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && disputes && disputes.total === 0">
+    <div class="empty-icon">⚖️</div>
+    <h3>No Disputes</h3>
+    <p>You don't have any active disputes.</p>
+    <p class="note">Disputes can be filed from the P2P trading interface when there's an issue with a trade.</p>
+  </div>
+
+  <!-- Disputes List -->
+  <div class="disputes-list" *ngIf="!isLoading && disputes && disputes.total > 0">
+    <div class="disputes-count">
+      <strong>{{ disputes.total }}</strong> dispute<span *ngIf="disputes.total !== 1">s</span>
+    </div>
+
+    <div class="dispute-card" *ngFor="let dispute of disputes.disputes" (click)="viewDetails(dispute)">
+      <div class="dispute-header">
+        <div class="dispute-id">#{{ dispute.id }}</div>
+        <span class="status-badge" [style.background-color]="getStatusColor(dispute.status)">
+          {{ getStatusText(dispute.status) }}
+        </span>
+      </div>
+
+      <div class="dispute-body">
+        <div class="dispute-info">
+          <div class="info-row">
+            <strong>Trade ID:</strong> #{{ dispute.trade_id }}
+          </div>
+          <div class="info-row">
+            <strong>Filed By:</strong> {{ dispute.filed_by_username || 'Unknown' }}
+          </div>
+          <div class="info-row" *ngIf="dispute.trade_amount && dispute.trade_currency">
+            <strong>Amount:</strong> {{ dispute.trade_amount | number:'1.2-8' }} {{ dispute.trade_currency }}
+          </div>
+          <div class="info-row">
+            <strong>Date:</strong> {{ dispute.created_at | date:'medium' }}
+          </div>
+        </div>
+
+        <div class="dispute-reason">
+          <strong>Reason:</strong>
+          <p>{{ dispute.reason }}</p>
+        </div>
+
+        <div class="dispute-parties" *ngIf="dispute.buyer_username && dispute.seller_username">
+          <span class="party">👤 Buyer: {{ dispute.buyer_username }}</span>
+          <span class="party">👤 Seller: {{ dispute.seller_username }}</span>
+        </div>
+      </div>
+
+      <div class="dispute-footer">
+        <button class="btn-details">View Details</button>
+        <button
+          class="btn-cancel"
+          *ngIf="canCancel(dispute)"
+          (click)="cancelDispute(dispute); $event.stopPropagation()"
+        >
+          Cancel Dispute
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dispute Details Modal -->
+  <div class="modal-overlay" *ngIf="selectedDispute" (click)="closeDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Dispute Details #{{ selectedDispute.id }}</h2>
+        <button class="close-btn" (click)="closeDetails()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Status -->
+        <div class="detail-section">
+          <div class="status-large" [style.background-color]="getStatusColor(selectedDispute.status)">
+            {{ getStatusText(selectedDispute.status) }}
+          </div>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="detail-section">
+          <h3>Information</h3>
+          <div class="detail-grid">
+            <div>
+              <strong>Trade ID:</strong> #{{ selectedDispute.trade_id }}
+            </div>
+            <div>
+              <strong>Filed By:</strong> {{ selectedDispute.filed_by_username || 'Unknown' }}
+            </div>
+            <div *ngIf="selectedDispute.trade_amount && selectedDispute.trade_currency">
+              <strong>Amount:</strong> {{ selectedDispute.trade_amount | number:'1.2-8' }} {{ selectedDispute.trade_currency }}
+            </div>
+            <div>
+              <strong>Filed:</strong> {{ selectedDispute.created_at | date:'medium' }}
+            </div>
+            <div *ngIf="selectedDispute.resolved_at">
+              <strong>Resolved:</strong> {{ selectedDispute.resolved_at | date:'medium' }}
+            </div>
+            <div *ngIf="selectedDispute.resolved_by_username">
+              <strong>Resolved By:</strong> {{ selectedDispute.resolved_by_username }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Parties -->
+        <div class="detail-section" *ngIf="selectedDispute.buyer_username && selectedDispute.seller_username">
+          <h3>Trade Parties</h3>
+          <div class="parties-grid">
+            <div class="party-card">
+              <div class="party-label">Buyer</div>
+              <div class="party-name">{{ selectedDispute.buyer_username }}</div>
+            </div>
+            <div class="party-card">
+              <div class="party-label">Seller</div>
+              <div class="party-name">{{ selectedDispute.seller_username }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="detail-section">
+          <h3>Reason</h3>
+          <div class="reason-box">
+            {{ selectedDispute.reason }}
+          </div>
+        </div>
+
+        <!-- Evidence -->
+        <div class="detail-section">
+          <h3>Evidence</h3>
+          <div class="evidence-list" *ngIf="parseEvidence(selectedDispute.evidence).length > 0">
+            <div class="evidence-item" *ngFor="let item of parseEvidence(selectedDispute.evidence); let i = index">
+              <div class="evidence-header">
+                <strong>Evidence #{{ i + 1 }}</strong>
+                <span class="evidence-time" *ngIf="item.timestamp">
+                  {{ item.timestamp | date:'short' }}
+                </span>
+              </div>
+              <div class="evidence-content">
+                <span class="evidence-user" *ngIf="item.username">By: {{ item.username }}</span>
+                <p>{{ item.content || item }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="no-evidence" *ngIf="parseEvidence(selectedDispute.evidence).length === 0">
+            <p>No evidence submitted yet.</p>
+          </div>
+        </div>
+
+        <!-- Add Evidence Form -->
+        <div class="detail-section" *ngIf="canAddEvidence(selectedDispute)">
+          <h3>Add Evidence</h3>
+          <textarea
+            [(ngModel)]="newEvidence"
+            placeholder="Provide additional evidence, screenshots descriptions, transaction IDs, or other relevant information..."
+            rows="4"
+            class="evidence-input"
+          ></textarea>
+          <button
+            class="btn-submit"
+            (click)="addEvidence()"
+            [disabled]="!newEvidence.trim() || addingEvidence"
+          >
+            {{ addingEvidence ? 'Submitting...' : 'Submit Evidence' }}
+          </button>
+        </div>
+
+        <!-- Resolution -->
+        <div class="detail-section" *ngIf="selectedDispute.resolution">
+          <h3>Resolution</h3>
+          <div class="resolution-box">
+            {{ selectedDispute.resolution }}
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-close" (click)="closeDetails()">Close</button>
+        <button
+          class="btn-cancel-dispute"
+          *ngIf="canCancel(selectedDispute)"
+          (click)="cancelDispute(selectedDispute)"
+        >
+          Cancel Dispute
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

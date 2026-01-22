@@ -1,0 +1,455 @@
+.disputes-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.disputes-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    color: #F0B90B;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: #848E9C;
+    font-size: 1rem;
+  }
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+
+  &.alert-error {
+    background-color: rgba(246, 70, 93, 0.1);
+    border: 1px solid #F6465D;
+    color: #F6465D;
+  }
+
+  &.alert-success {
+    background-color: rgba(14, 203, 129, 0.1);
+    border: 1px solid #0ECB81;
+    color: #0ECB81;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #848E9C;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    color: #EAECEF;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #848E9C;
+    margin-bottom: 0.5rem;
+  }
+
+  .note {
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+}
+
+.disputes-count {
+  margin-bottom: 1.5rem;
+  color: #EAECEF;
+  font-size: 1.1rem;
+}
+
+.disputes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dispute-card {
+  background-color: #1E2329;
+  border: 1px solid #2B3139;
+  border-radius: 8px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #F0B90B;
+    transform: translateY(-2px);
+  }
+}
+
+.dispute-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .dispute-id {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #F0B90B;
+  }
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.dispute-body {
+  margin-bottom: 1rem;
+}
+
+.dispute-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  .info-row {
+    color: #848E9C;
+    font-size: 0.9rem;
+
+    strong {
+      color: #EAECEF;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+.dispute-reason {
+  margin-bottom: 1rem;
+
+  strong {
+    color: #EAECEF;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #848E9C;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.dispute-parties {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  .party {
+    padding: 0.5rem 1rem;
+    background-color: #2B3139;
+    border-radius: 6px;
+    color: #EAECEF;
+    font-size: 0.9rem;
+  }
+}
+
+.dispute-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #2B3139;
+}
+
+button {
+  padding: 0.6rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  &.btn-details {
+    background-color: #F0B90B;
+    color: #000;
+
+    &:hover {
+      background-color: #FCD535;
+    }
+  }
+
+  &.btn-cancel,
+  &.btn-cancel-dispute {
+    background-color: transparent;
+    border: 1px solid #F6465D;
+    color: #F6465D;
+
+    &:hover {
+      background-color: rgba(246, 70, 93, 0.1);
+    }
+  }
+
+  &.btn-submit {
+    background-color: #0ECB81;
+    color: #000;
+
+    &:hover:not(:disabled) {
+      background-color: #1DE99B;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &.btn-close {
+    background-color: #2B3139;
+    color: #EAECEF;
+
+    &:hover {
+      background-color: #3B4149;
+    }
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background-color: #1E2329;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #2B3139;
+
+  h2 {
+    color: #F0B90B;
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #848E9C;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: #EAECEF;
+    }
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.detail-section {
+  margin-bottom: 2rem;
+
+  h3 {
+    color: #EAECEF;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #2B3139;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.status-large {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+
+  div {
+    color: #848E9C;
+
+    strong {
+      color: #EAECEF;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+  }
+}
+
+.parties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.party-card {
+  background-color: #2B3139;
+  padding: 1rem;
+  border-radius: 8px;
+
+  .party-label {
+    color: #848E9C;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .party-name {
+    color: #EAECEF;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+.reason-box,
+.resolution-box {
+  background-color: #2B3139;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #EAECEF;
+  line-height: 1.6;
+}
+
+.evidence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.evidence-item {
+  background-color: #2B3139;
+  border-radius: 8px;
+  padding: 1rem;
+
+  .evidence-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+
+    strong {
+      color: #F0B90B;
+    }
+
+    .evidence-time {
+      color: #848E9C;
+      font-size: 0.85rem;
+    }
+  }
+
+  .evidence-content {
+    .evidence-user {
+      color: #848E9C;
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: #EAECEF;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+.no-evidence {
+  text-align: center;
+  padding: 2rem;
+  color: #848E9C;
+  background-color: #2B3139;
+  border-radius: 8px;
+}
+
+.evidence-input {
+  width: 100%;
+  background-color: #2B3139;
+  border: 1px solid #3B4149;
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: #EAECEF;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: #F0B90B;
+  }
+
+  &::placeholder {
+    color: #848E9C;
+  }
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #2B3139;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .disputes-page {
+    padding: 1rem;
+  }
+
+  .dispute-info,
+  .detail-grid,
+  .parties-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    max-height: 95vh;
+  }
+}

@@ -1,0 +1,35 @@
+<div class="market-data-container">
+  <h3 class="market-title">Markets</h3>
+  <div class="market-list">
+    <div class="market-header">
+      <div class="header-item">Pair</div>
+      <div class="header-item text-right">Price</div>
+      <div class="header-item text-right">24h Change</div>
+    </div>
+    <div class="market-body" *ngIf="marketData$ | async as market">
+      <div *ngIf="market.prices; else loading">
+        <div class="market-row" *ngFor="let item of market.prices | keyvalue">
+          <div class="market-cell">
+            <span class="symbol">{{ item.value.symbol.replace('-', '/') }}</span>
+          </div>
+          <div class="market-cell text-right">
+            <span class="price">{{ item.value.price | number:'1.2-2' }}</span>
+          </div>
+          <div 
+            class="market-cell text-right" 
+            [ngClass]="{
+              'text-success': item.value.change_percent >= 0, 
+              'text-danger': item.value.change_percent < 0
+            }">
+            <span class="change">
+              {{ (item.value.change_percent / 100) | percent:'1.2-2' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <ng-template #loading>
+        <div class="loading-indicator">Loading market data...</div>
+      </ng-template>
+    </div>
+  </div>
+</div>

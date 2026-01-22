@@ -1,0 +1,357 @@
+<div class="dashboard-page">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1>Dashboard</h1>
+      </div>
+
+      <div class="header-right">
+        <div class="balance-display">
+          <span class="label">Total Balance:</span>
+          <span class="amount">{{ formatUSD(totalBalanceUSD) }}</span>
+        </div>
+
+        <div class="user-menu" *ngIf="currentUser">
+          <div class="user-avatar">{{ currentUser.username.charAt(0).toUpperCase() }}</div>
+          <span class="username">{{ currentUser.username }}</span>
+          <button class="logout-btn" (click)="logout()">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content" *ngIf="!isLoading">
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card total-balance">
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Balance</span>
+            <span class="stat-value">{{ formatUSD(totalBalanceUSD) }}</span>
+            <span class="stat-change positive">+2.5%</span>
+          </div>
+        </div>
+
+        <div class="stat-card available-balance">
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Available</span>
+            <span class="stat-value">{{ formatUSD(totalBalanceUSD * 0.9) }}</span>
+            <span class="stat-subtext">Ready to trade</span>
+          </div>
+        </div>
+
+        <div class="stat-card locked-balance">
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Locked</span>
+            <span class="stat-value">{{ formatUSD(totalBalanceUSD * 0.1) }}</span>
+            <span class="stat-subtext">In orders</span>
+          </div>
+        </div>
+
+        <div class="stat-card daily-change">
+          <div class="stat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">24h Change</span>
+            <span class="stat-value positive">+$250.00</span>
+            <span class="stat-change positive">+2.5%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Crypto Market Prices -->
+      <div class="section crypto-market-section">
+        <div class="section-header">
+          <h2 class="section-title">Live Crypto Market + AI Predictions</h2>
+          <span class="data-source" *ngIf="currentPrices">
+            <span class="pulse-dot"></span>
+            Real-time from {{ getDataSource() }}
+          </span>
+        </div>
+
+        <!-- Search and Toggle Controls -->
+        <div class="crypto-controls" *ngIf="showAllCryptos || searchQuery">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Search cryptocurrencies..."
+              class="search-input">
+            <button *ngIf="searchQuery" (click)="searchQuery = ''" class="clear-search">×</button>
+          </div>
+        </div>
+
+        <div class="crypto-prices-grid">
+          <!-- Dynamic Crypto Cards for displayed cryptocurrencies -->
+          <div class="crypto-price-card"
+               *ngFor="let crypto of getDisplayedCryptos()"
+               [ngClass]="crypto.iconClass + '-card'"
+               @fadeIn>
+            <div class="crypto-header">
+              <div class="crypto-icon" [ngClass]="crypto.iconClass">{{ crypto.icon }}</div>
+              <div class="crypto-name">
+                <span class="symbol">{{ crypto.symbol }}</span>
+                <span class="full-name">{{ crypto.name }}</span>
+              </div>
+            </div>
+
+            <div class="crypto-price">
+              <div class="price-main">
+                <span class="currency">$</span>
+                <span class="amount" *ngIf="currentPrices">{{ getCryptoPrice(crypto.symbol).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: crypto.symbol === 'BTC' || crypto.symbol === 'ETH' ? 2 : 4}) }}</span>
+                <span class="amount loading" *ngIf="!currentPrices">Loading...</span>
+              </div>
+              <div class="price-change"
+                   [class.positive]="isPricePositive(crypto.symbol)"
+                   [class.negative]="!isPricePositive(crypto.symbol)"
+                   *ngIf="currentPrices">
+                <span class="arrow">{{ isPricePositive(crypto.symbol) ? '▲' : '▼' }}</span>
+                <span>{{ getCryptoPriceChange(crypto.symbol).toFixed(2) }}%</span>
+              </div>
+            </div>
+
+            <!-- AI Prediction Button -->
+            <button class="ai-prediction-btn"
+                    *ngIf="getPrediction(crypto.symbol, '24h')"
+                    (click)="togglePrediction(crypto.symbol)">
+              <span class="btn-icon">🤖</span>
+              <span class="btn-text">AI Prediction</span>
+            </button>
+
+            <div class="crypto-stats" *ngIf="currentPrices">
+              <div class="stat-item">
+                <span class="label">24h Volume</span>
+                <span class="value">${{ formatLargeNumber(getCryptoVolume(crypto.symbol)) }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="label">Market Cap</span>
+                <span class="value">${{ formatLargeNumber(getCryptoMarketCap(crypto.symbol)) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Show More / Show Less Button -->
+        <div class="show-more-section">
+          <button class="show-more-btn" (click)="toggleShowAllCryptos()">
+            <span *ngIf="!showAllCryptos">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              Show {{ getHiddenCryptosCount() }} More Cryptocurrencies
+            </span>
+            <span *ngIf="showAllCryptos">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+              Show Less
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Wallets Grid -->
+      <div class="section">
+        <h2 class="section-title">My Wallets</h2>
+        <div class="wallets-grid">
+          <div class="wallet-card" *ngFor="let wallet of wallets">
+            <div class="wallet-header">
+              <div class="currency-icon" [class]="wallet.currency.toLowerCase()">
+                {{ wallet.currency === 'BTC' ? '₿' : wallet.currency === 'ETH' ? 'Ξ' : wallet.currency }}
+              </div>
+              <span class="currency-name">{{ wallet.currency }}</span>
+            </div>
+
+            <div class="wallet-balance">
+              <div class="balance-row">
+                <span class="label">Available:</span>
+                <span class="value">{{ formatBalance(wallet.available_balance) }}</span>
+              </div>
+              <div class="balance-row locked">
+                <span class="label">Locked:</span>
+                <span class="value">{{ formatBalance(wallet.locked_balance) }}</span>
+              </div>
+            </div>
+
+            <div class="wallet-actions">
+              <button class="btn-deposit" routerLink="/wallet">Deposit</button>
+              <button class="btn-withdraw" routerLink="/wallet">Withdraw</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="quick-actions">
+          <button class="action-btn primary" routerLink="/orderbook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span class="text">Place Order</span>
+          </button>
+          <button class="action-btn success" routerLink="/p2p">
+            <span class="icon">🤝</span>
+            <span class="text">Browse P2P</span>
+          </button>
+          <button class="action-btn info" routerLink="/wallet">
+            <span class="icon">💸</span>
+            <span class="text">Transfer</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Welcome Message -->
+      <div class="welcome-card">
+        <div class="welcome-content">
+          <h3>Welcome back, {{ currentUser?.username }}! 👋</h3>
+          <p>Your virtual trading account is ready. Start trading with your $10,000 welcome bonus!</p>
+        </div>
+        <div class="welcome-stats">
+          <div class="stat">
+            <span class="number">{{ wallets.length }}</span>
+            <span class="label">Wallets</span>
+          </div>
+          <div class="stat">
+            <span class="number">0</span>
+            <span class="label">Trades</span>
+          </div>
+          <div class="stat">
+            <span class="number">100%</span>
+            <span class="label">Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading your dashboard...</p>
+    </div>
+</div>
+
+<!-- AI Chat Widget -->
+<app-ai-chat-widget></app-ai-chat-widget>
+
+<!-- AI Prediction Modal -->
+<div class="prediction-modal-overlay" *ngIf="activePrediction" (click)="closeModal()">
+  <div class="prediction-modal" (click)="$event.stopPropagation()" @fadeIn>
+    <button class="modal-close" (click)="closeModal()">×</button>
+
+    <div class="modal-header">
+      <div class="modal-symbol">
+        <span class="symbol-icon">{{ activePrediction.symbol === 'BTC' ? '₿' : 'Ξ' }}</span>
+        <span class="symbol-name">{{ activePrediction.symbol }}</span>
+      </div>
+      <div class="modal-timeframe">24h Forecast</div>
+    </div>
+
+    <div class="modal-body">
+      <div class="confidence-section">
+        <div class="confidence-label">AI Confidence</div>
+        <div class="confidence-circle"
+             [class.high]="activePrediction.confidence! > 70"
+             [class.medium]="activePrediction.confidence! > 50 && activePrediction.confidence! <= 70"
+             [class.low]="activePrediction.confidence! <= 50">
+          <span class="confidence-percent">{{ activePrediction.confidence }}%</span>
+        </div>
+      </div>
+
+      <div class="prediction-signal"
+           [class.bullish]="activePrediction.prediction === 'up'"
+           [class.bearish]="activePrediction.prediction === 'down'"
+           [class.neutral]="activePrediction.prediction === 'neutral'">
+        <div class="signal-icon">
+          <svg *ngIf="activePrediction.prediction === 'up'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+          <svg *ngIf="activePrediction.prediction === 'down'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+          <svg *ngIf="activePrediction.prediction === 'neutral'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </div>
+        <div class="signal-content">
+          <div class="signal-label">Expected Change</div>
+          <div class="signal-value">{{ activePrediction.predicted_change! >= 0 ? '+' : '' }}{{ activePrediction.predicted_change.toFixed(2) }}%</div>
+          <div class="signal-target">Target: ${{ activePrediction.predicted_price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}</div>
+        </div>
+      </div>
+
+      <div class="prediction-recommendation">
+        <div class="rec-label">Recommended Action</div>
+        <div class="rec-badge"
+             [class.buy]="activePrediction.recommendation === 'BUY'"
+             [class.sell]="activePrediction.recommendation === 'SELL'"
+             [class.hold]="activePrediction.recommendation === 'HOLD'">
+          <span class="rec-icon">{{ getRecommendationStyle(activePrediction.recommendation || '').icon }}</span>
+          <span class="rec-text">{{ activePrediction.recommendation }}</span>
+        </div>
+        <div class="risk-badge" *ngIf="activePrediction.risk_assessment">
+          Risk: <strong>{{ activePrediction.risk_assessment | uppercase }}</strong>
+        </div>
+      </div>
+
+      <!-- Key Factors -->
+      <div class="prediction-factors" *ngIf="activePrediction.key_factors && activePrediction.key_factors.length > 0">
+        <div class="factors-label">Key Factors</div>
+        <ul class="factors-list">
+          <li *ngFor="let factor of activePrediction.key_factors">{{ factor }}</li>
+        </ul>
+      </div>
+
+      <!-- Technical Analysis -->
+      <div class="technical-section" *ngIf="activePrediction.technical_analysis">
+        <div class="tech-label">Technical Analysis</div>
+        <div class="tech-grid">
+          <div class="tech-item">
+            <span class="tech-name">RSI</span>
+            <span class="tech-value">{{ activePrediction.technical_analysis.rsi.toFixed(1) }}</span>
+            <span class="tech-signal" [class]="getTechSignalClass(activePrediction.technical_analysis.rsi_signal)">
+              {{ activePrediction.technical_analysis.rsi_signal }}
+            </span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">Trend</span>
+            <span class="tech-value">{{ activePrediction.technical_analysis.trend_direction | uppercase }}</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">Signal Score</span>
+            <span class="tech-value"
+                  [class.positive]="activePrediction.technical_analysis.overall_signal_score > 0"
+                  [class.negative]="activePrediction.technical_analysis.overall_signal_score < 0">
+              {{ activePrediction.technical_analysis.overall_signal_score }}/100
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sentiment Analysis -->
+      <div class="sentiment-section" *ngIf="activePrediction.sentiment_analysis">
+        <div class="sent-label">💭 Market Sentiment</div>
+        <div class="sent-content">
+          <div class="sent-score"
+               [class.positive]="activePrediction.sentiment_analysis.score > 0"
+               [class.negative]="activePrediction.sentiment_analysis.score < 0">
+            {{ activePrediction.sentiment_analysis.score > 0 ? '+' : '' }}{{ activePrediction.sentiment_analysis.score }}/100
+          </div>
+          <div class="sent-details">
+            <span class="sent-mood">{{ activePrediction.sentiment_analysis.sentiment.replace('_', ' ') | titlecase }}</span>
+            <span class="sent-source">({{ activePrediction.sentiment_analysis.news_count }} news articles)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="prediction-reasoning" *ngIf="activePrediction.reasoning">
+        <div class="reasoning-label">🤖 AI Analysis</div>
+        <div class="reasoning-text">{{ activePrediction.reasoning }}</div>
+      </div>
+
+      <!-- Data Source -->
+      <div class="data-source-info" *ngIf="activePrediction.data_source">
+        <small>📡 Data: {{ activePrediction.data_source }}</small>
+      </div>
+    </div>
+  </div>
+</div>

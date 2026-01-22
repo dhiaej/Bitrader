@@ -1,0 +1,430 @@
+// Design System Variables (from Simulator)
+$bg-primary: #0b0e11;
+$bg-secondary: #1E2329;
+$bg-card: #1f2937;
+$bg-input: #0f1419;
+$border-color: #2B3139;
+$text-primary: #eaecef;
+$text-secondary: #848E9C;
+$accent-gold: #F0B90B;
+$accent-green: #02c076;
+$accent-red: #f6465d;
+$accent-purple: #8b5cf6;
+
+.category-posts-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background: $bg-primary;
+  color: $text-primary;
+}
+
+.category-header {
+  margin-bottom: 2rem;
+
+  .breadcrumb {
+    margin-bottom: 1rem;
+    color: #848E9C;
+    font-size: 0.9rem;
+
+    a {
+      color: #F0B90B;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  .category-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+
+    .category-icon {
+      width: 32px;
+      height: 32px;
+      color: $accent-gold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #EAECEF;
+      margin: 0;
+      flex: 1;
+    }
+  }
+
+  .category-description {
+    color: #848E9C;
+    margin-bottom: 1.5rem;
+  }
+
+  .category-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .sort-form {
+      .sort-select {
+        padding: 0.5rem 1rem;
+        border: 1px solid #2B3139;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: #1E2329;
+        color: #EAECEF;
+      }
+    }
+
+    .btn-create-post {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #F0B90B 0%, #FCD535 100%);
+      color: #0B0E11;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+
+      &:hover {
+        background: #FCD535;
+      }
+    }
+
+    .cannot-post-message {
+      color: #F6465D;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+  }
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 3rem;
+  p {
+    font-size: 1.2rem;
+    color: #848E9C;
+  }
+}
+
+.error p { color: #F6465D; }
+
+.btn-retry {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #F0B90B;
+  color: #0B0E11;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 40px;
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+
+    p {
+      font-size: 16px;
+      color: $text-secondary;
+      margin-bottom: 16px;
+    }
+
+    .btn-create-first {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, $accent-green, #05a066);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      font-weight: 600;
+      transition: all 0.3s;
+
+      &:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($accent-green, 0.3);
+      }
+    }
+}
+
+.post-card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+
+  &:hover {
+    border-color: $accent-gold;
+    box-shadow: 0 4px 12px rgba($accent-gold, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .post-pinned, .post-locked {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 12px;
+    color: $text-secondary;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba($accent-gold, 0.1);
+    border: 1px solid rgba($accent-gold, 0.3);
+    border-radius: 6px;
+    font-weight: 600;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      color: $accent-gold;
+    }
+  }
+
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .post-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .author-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #2B3139;
+      }
+
+      .author-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .author-name {
+          font-weight: 600;
+          color: $text-primary;
+        }
+
+        .author-badge {
+          padding: 0.15rem 0.5rem;
+          border-radius: 10px;
+          font-size: 0.7rem;
+          font-weight: bold;
+          text-transform: uppercase;
+
+          &.badge-normal { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
+          &.badge-pro { background: rgba(139, 92, 246, 0.2); color: #8B5CF6; }
+          &.badge-expert { background: rgba(240, 185, 11, 0.2); color: #F0B90B; }
+        }
+      }
+    }
+
+    .post-date {
+      color: $text-secondary;
+      font-size: 12px;
+    }
+  }
+
+  .post-title {
+    font-size: 20px;
+    color: $text-primary;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .post-preview {
+    color: $text-secondary;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .read-more {
+    color: $accent-gold;
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+
+    .tag {
+      padding: 4px 12px;
+      background: rgba($accent-gold, 0.1);
+      color: $accent-gold;
+      border: 1px solid rgba($accent-gold, 0.3);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid $border-color;
+
+    .post-stats {
+      display: flex;
+      gap: 20px;
+      font-size: 13px;
+      color: $text-secondary;
+
+      .stat {
+        strong { 
+          color: $accent-gold;
+          font-weight: 600;
+        }
+
+        &.votes {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          
+          .upvote, .downvote {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+          }
+          
+          .upvote { 
+            color: $accent-green;
+            
+            svg {
+              width: 14px;
+              height: 14px;
+            }
+          }
+          
+          .downvote { 
+            color: $accent-red;
+            
+            svg {
+              width: 14px;
+              height: 14px;
+            }
+          }
+        }
+      }
+    }
+
+    .post-activity {
+      font-size: 12px;
+      color: $text-secondary;
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+
+  .page-btn {
+    padding: 10px 16px;
+    border: 1px solid $border-color;
+    background: $bg-card;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: $text-primary;
+    transition: all 0.3s;
+
+    &:hover:not(:disabled) {
+      background: $bg-secondary;
+      border-color: $accent-gold;
+      color: $accent-gold;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .page-info {
+    color: $text-secondary;
+    font-size: 14px;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  &.badge-normal { 
+    background: rgba(59, 130, 246, 0.15); 
+    color: #3B82F6; 
+    border: 1px solid rgba(59, 130, 246, 0.3); 
+  }
+  &.badge-pro { 
+    background: rgba($accent-purple, 0.15); 
+    color: $accent-purple; 
+    border: 1px solid rgba($accent-purple, 0.3); 
+  }
+  &.badge-expert { 
+    background: rgba($accent-gold, 0.15); 
+    color: $accent-gold; 
+    border: 1px solid rgba($accent-gold, 0.3); 
+  }
+}
+
+@media (max-width: 768px) {
+  .category-posts-container { padding: 1rem; }
+  .post-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+

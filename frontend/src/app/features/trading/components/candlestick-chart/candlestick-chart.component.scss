@@ -1,0 +1,177 @@
+// Unified Design System Variables (matching Simulator)
+$bg-primary: #0b0e11;
+$bg-secondary: #111827;
+$bg-card: #1f2937;
+$bg-input: #0f1419;
+$border-color: #2B3139;
+$text-primary: #eaecef;
+$text-secondary: #9ca3af;
+$accent-gold: #F0B90B;
+$accent-green: #02c076;
+$accent-red: #f6465d;
+$accent-purple: #8b5cf6;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: $bg-primary;
+}
+
+.chart-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color;
+}
+
+.timeframe-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .timeframe-btn {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    color: $text-secondary;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+
+    &:hover {
+      border-color: $accent-gold;
+      color: $text-primary;
+      background: rgba($accent-gold, 0.08);
+    }
+
+    &.active {
+      color: $bg-primary;
+      background: $accent-gold;
+      border-color: $accent-gold;
+      font-weight: 700;
+    }
+  }
+}
+
+.indicator-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  label {
+    color: $text-secondary;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .indicator-select {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    color: $text-primary;
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 160px;
+
+    &:hover {
+      border-color: rgba($accent-gold, 0.4);
+    }
+
+    &:focus {
+      border-color: $accent-gold;
+      box-shadow: 0 0 0 2px rgba($accent-gold, 0.1);
+    }
+
+    option {
+      background: $bg-card;
+      color: $text-primary;
+      padding: 8px;
+    }
+  }
+}
+
+.chart-main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 350px;
+  background: $bg-primary;
+}
+
+.chart-container {
+  width: 100%;
+  flex-grow: 1;
+  height: 100%;
+  min-height: 300px;
+  position: relative;
+
+  // Loading overlay
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.indicator-container {
+  width: 100%;
+  height: 120px;
+  border-top: 1px solid $border-color;
+  background: $bg-primary;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .top-controls {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .timeframe-selector {
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .timeframe-btn {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+  }
+
+  .indicator-selector {
+    justify-content: center;
+
+    .indicator-select {
+      min-width: 140px;
+    }
+  }
+
+  .chart-main {
+    min-height: 280px;
+  }
+
+  .indicator-container {
+    height: 100px;
+  }
+}

@@ -1,0 +1,211 @@
+// Design System Variables (from Simulator)
+$bg-primary: #0b0e11;
+$bg-secondary: #1E2329;
+$bg-card: #1f2937;
+$bg-input: #0f1419;
+$border-color: #2B3139;
+$text-primary: #eaecef;
+$text-secondary: #848E9C;
+$accent-gold: #F0B90B;
+$accent-green: #02c076;
+$accent-red: #f6465d;
+$accent-purple: #8b5cf6;
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background: $bg-primary;
+  color: $text-primary;
+}
+
+// Top Navbar
+.top-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: $bg-secondary;
+  border-bottom: 1px solid $border-color;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+
+  .navbar-content {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, $accent-gold 0%, #FCD535 100%);
+      border-radius: 8px;
+      padding: 6px;
+      color: $bg-primary;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, $accent-gold, $accent-purple);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  .navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    overflow-x: auto;
+    padding: 0 16px;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $border-color;
+      border-radius: 2px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      color: $text-secondary;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 500;
+
+      .nav-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+
+      &:hover {
+        background: rgba($accent-gold, 0.1);
+        color: $accent-gold;
+      }
+
+      &.active {
+        background: rgba($accent-gold, 0.15);
+        color: $accent-gold;
+        border-bottom: 2px solid $accent-gold;
+      }
+
+      &.admin-link {
+        background: rgba($accent-gold, 0.05);
+        margin-left: auto;
+      }
+    }
+  }
+
+  .navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba($accent-red, 0.1);
+      border: 1px solid rgba($accent-red, 0.3);
+      border-radius: 8px;
+      color: $accent-red;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 500;
+
+      .nav-icon {
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover {
+        background: rgba($accent-red, 0.2);
+        border-color: $accent-red;
+      }
+    }
+  }
+}
+
+// Main Content
+.main-content {
+  flex: 1;
+  width: 100%;
+  background: $bg-primary;
+  min-height: 100vh;
+
+  &.with-navbar {
+    margin-top: 64px;
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .top-navbar {
+    .navbar-content {
+      padding: 0 16px;
+      gap: 16px;
+    }
+
+    .navbar-links {
+      gap: 2px;
+      padding: 0 8px;
+
+      .nav-link {
+        padding: 10px 12px;
+        font-size: 13px;
+
+        span {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .top-navbar {
+    height: 56px;
+
+    .navbar-logo .logo-text {
+      display: none;
+    }
+
+    .navbar-links .nav-link {
+      padding: 8px 10px;
+    }
+  }
+
+  .main-content.with-navbar {
+    margin-top: 56px;
+  }
+}

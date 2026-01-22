@@ -1,0 +1,153 @@
+<div class="category-posts-container">
+  <!-- Header -->
+  <div class="category-header" *ngIf="category">
+    <div class="breadcrumb">
+      <a routerLink="/forum">Forum</a> / 
+      <span>{{ category.name }}</span>
+    </div>
+    <div class="category-title">
+      <span class="category-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M7 7H17M7 11H17M7 15H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <h1>{{ category.name }}</h1>
+      <span class="badge" [ngClass]="category.min_reputation_required >= 1000 ? 'badge-expert' : (category.min_reputation_required >= 500 ? 'badge-pro' : 'badge-normal')">
+        {{ category.min_reputation_required >= 1000 ? 'Expert' : (category.min_reputation_required >= 500 ? 'Pro' : 'Normal') }}
+      </span>
+    </div>
+    <p class="category-description" *ngIf="category.description">{{ category.description }}</p>
+    
+    <div class="category-actions">
+      <form [formGroup]="sortForm" class="sort-form">
+        <select formControlName="sort" class="sort-select">
+          <option value="activity">Most Recent Activity</option>
+          <option value="newest">Newest First</option>
+          <option value="votes">Most Popular</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </form>
+      <button 
+        *ngIf="canCreatePost()" 
+        class="btn-create-post" 
+        [routerLink]="['/forum/post/create', categoryId]">
+        + Create Post
+      </button>
+      <div *ngIf="!canCreatePost()" class="cannot-post-message">
+        Reputation {{ category.min_reputation_required }}+ required to create a post
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <p>Loading posts...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button (click)="loadPosts()" class="btn-retry">Retry</button>
+  </div>
+
+  <!-- Posts List -->
+  <div *ngIf="!loading && !error" class="posts-list">
+    <div *ngIf="posts.length === 0" class="no-posts">
+      <p>No posts in this category.</p>
+      <button *ngIf="canCreatePost()" class="btn-create-first" [routerLink]="['/forum/post/create', categoryId]">
+        Create the First Post
+      </button>
+    </div>
+
+    <div *ngFor="let post of posts" class="post-card" [routerLink]="['/forum/post', post.id]">
+      <div class="post-pinned" *ngIf="post.is_pinned">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+          <path d="M12 17V22M12 2V7M12 7L7 2L5 4L12 7ZM12 7L17 2L19 4L12 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Pinned
+      </div>
+      <div class="post-locked" *ngIf="post.is_locked">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+          <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M9 11V7C9 5.34315 10.3431 4 12 4C13.6569 4 15 5.34315 15 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Locked
+      </div>
+      
+      <div class="post-header">
+        <div class="post-author">
+          <img 
+            [src]="post.author.avatar_url || 'https://ui-avatars.com/api/?name=' + post.author.username + '&background=F0B90B&color=0B0E11'" 
+            [alt]="post.author.username"
+            class="author-avatar">
+          <div class="author-info">
+            <span class="author-name">{{ post.author.username }}</span>
+            <span class="author-badge" *ngIf="post.author.reputation_level" 
+                  [ngClass]="'badge-' + post.author.reputation_level.toLowerCase()">
+              {{ post.author.reputation_level }}
+            </span>
+          </div>
+        </div>
+        <div class="post-date">{{ post.created_at | date:'short' }}</div>
+      </div>
+
+      <h3 class="post-title">{{ post.title }}</h3>
+      
+      <div class="post-preview" [innerHTML]="post.content | slice:0:200"></div>
+      <div *ngIf="post.content.length > 200" class="read-more">...Read more</div>
+
+      <div class="post-tags" *ngIf="post.tags && post.tags.length > 0">
+        <span *ngFor="let tag of post.tags" class="tag">{{ tag }}</span>
+      </div>
+
+      <div class="post-footer">
+        <div class="post-stats">
+          <span class="stat">
+            <strong>{{ post.view_count }}</strong> views
+          </span>
+          <span class="stat">
+            <strong>{{ post.comment_count }}</strong> comments
+          </span>
+          <span class="stat votes">
+            <span class="upvote">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                <path d="M7 13L12 8L17 13M7 6L12 1L17 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ post.upvotes }}
+            </span>
+            <span class="downvote">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                <path d="M17 11L12 16L7 11M17 18L12 23L7 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ post.downvotes }}
+            </span>
+          </span>
+        </div>
+        <div class="post-activity">
+          Last activity: {{ post.last_activity_at | date:'short' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && !error && totalPages > 1" class="pagination">
+    <button 
+      [disabled]="currentPage === 1" 
+      (click)="goToPage(currentPage - 1)"
+      class="page-btn">
+      Previous
+    </button>
+    <span class="page-info">
+      Page {{ currentPage }} of {{ totalPages }}
+    </span>
+    <button 
+      [disabled]="currentPage === totalPages" 
+      (click)="goToPage(currentPage + 1)"
+      class="page-btn">
+      Next
+    </button>
+  </div>
+</div>
+

@@ -1,0 +1,140 @@
+<div class="profile-page">
+  <h1>My Profile</h1>
+
+  <div class="messages">
+    <p class="success" *ngIf="saveMessage">{{ saveMessage }}</p>
+    <p class="success" *ngIf="uploadMessage">{{ uploadMessage }}</p>
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
+
+  <div class="profile-grid">
+    <div class="profile-card avatar-card">
+      <h2>Photo</h2>
+      <div class="avatar-preview">
+        <img [src]="avatarPreview || 'https://ui-avatars.com/api/?name=User'" alt="User Avatar">
+      </div>
+      <div class="avatar-actions">
+        <label class="upload-btn">
+          Choose an image
+          <input type="file" accept="image/*" (change)="onAvatarSelected($event)">
+        </label>
+        <button type="button" (click)="uploadAvatar()" [disabled]="!selectedAvatar || isUploading">
+          {{ isUploading ? 'Uploading...' : 'Update' }}
+        </button>
+      </div>
+      <small>Accepted formats: JPG, PNG, WebP (2&nbsp;MB max).</small>
+    </div>
+
+    <div class="profile-card face-card">
+      <h2>Face Login</h2>
+      <p class="face-description">
+        Register your face to log in without a password. Use good lighting and look directly at the camera.
+      </p>
+
+      <div class="face-preview" [class.active]="isFaceCameraActive">
+        <video #faceVideo autoplay playsinline muted></video>
+        <div class="face-placeholder" *ngIf="!isFaceCameraActive">
+          Click "Start Camera" to begin.
+        </div>
+        <canvas #faceCanvas hidden></canvas>
+      </div>
+
+      <div class="face-messages">
+        <p class="success" *ngIf="faceRegisterMessage">{{ faceRegisterMessage }}</p>
+        <p class="error" *ngIf="faceRegisterError">{{ faceRegisterError }}</p>
+      </div>
+
+      <div class="face-actions">
+        <button type="button" class="btn-outline" (click)="toggleFaceCamera()">
+          {{ isFaceCameraActive ? 'Stop Camera' : 'Start Camera' }}
+        </button>
+        <button
+          type="button"
+          (click)="captureFaceRegistration()"
+          [disabled]="!isFaceCameraActive || isRegisteringFace"
+        >
+          {{ isRegisteringFace ? 'Analyzing...' : 'Register My Face' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="profile-card form-card">
+      <h2>Information</h2>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <label>
+          Username
+          <input type="text" formControlName="username">
+        </label>
+
+        <label>
+          Full Name
+          <input type="text" formControlName="full_name" placeholder="Your full name">
+        </label>
+
+        <label>
+          Email
+          <input type="email" formControlName="email" placeholder="your@email.com">
+        </label>
+
+        <button type="submit" [disabled]="isSaving || profileForm.invalid">
+          {{ isSaving ? 'Saving...' : 'Save' }}
+        </button>
+      </form>
+    </div>
+
+    <div class="profile-card reputation-card">
+      <div class="reputation-header">
+        <h2>Reputation</h2>
+        <span *ngIf="isReputationLoading">Loading...</span>
+        <span class="error" *ngIf="reputationError">{{ reputationError }}</span>
+      </div>
+
+      <ng-container *ngIf="reputationProfile">
+        <div class="score-display">
+          <div class="score-value">{{ reputationProfile.reputation.score }}</div>
+          <div class="score-label">Overall Score</div>
+        </div>
+
+        <div class="reputation-stats">
+          <div>
+            <span class="label">Completed Trades</span>
+            <strong>{{ reputationProfile.reputation.completed_trades }}</strong>
+          </div>
+          <div>
+            <span class="label">Completion Rate</span>
+            <strong>{{ reputationProfile.reputation.completion_rate | number:'1.0-1' }}%</strong>
+          </div>
+          <div>
+            <span class="label">Average Rating</span>
+            <strong>{{ reputationProfile.reputation.average_rating | number:'1.1-1' }}/5</strong>
+          </div>
+          <div>
+            <span class="label">Reviews Received</span>
+            <strong>{{ reputationProfile.reputation.review_count }}</strong>
+          </div>
+        </div>
+
+        <div class="badges" *ngIf="reputationProfile.reputation.badges.length > 0">
+          <span class="badge" *ngFor="let badge of reputationProfile.reputation.badges">
+            {{ badge }}
+          </span>
+        </div>
+
+        <div class="reviews-section" *ngIf="reputationProfile.recent_reviews.length > 0">
+          <h3>Recent Reviews</h3>
+          <div class="review" *ngFor="let review of reputationProfile.recent_reviews">
+            <div class="review-header">
+              <span class="rating">{{ review.rating }}/5</span>
+              <span class="date">{{ formatReviewDate(review.created_at) }}</span>
+            </div>
+            <p>{{ review.comment || 'No comment.' }}</p>
+          </div>
+        </div>
+        <p class="no-review" *ngIf="reputationProfile.recent_reviews.length === 0">
+          No reviews yet.
+        </p>
+      </ng-container>
+    </div>
+  </div>
+</div>
+

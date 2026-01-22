@@ -1,0 +1,648 @@
+// Unified Design System Variables (matching Simulator)
+$bg-primary: #0b0e11;
+$bg-secondary: #111827;
+$bg-card: #1f2937;
+$bg-input: #0f1419;
+$border-color: #2B3139;
+$text-primary: #eaecef;
+$text-secondary: #9ca3af;
+$accent-gold: #F0B90B;
+$accent-green: #02c076;
+$accent-red: #f6465d;
+$accent-purple: #8b5cf6;
+
+.assistant-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: $bg-secondary;
+  color: $text-primary;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// Panel Header
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid $border-color;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: $text-primary;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .header-icon {
+        width: 22px;
+        height: 22px;
+        color: $accent-gold;
+      }
+    }
+
+    .symbol-tag {
+      background: rgba($accent-gold, 0.15);
+      color: $accent-gold;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .update-time {
+    font-size: 11px;
+    color: $text-secondary;
+  }
+
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $text-secondary;
+    transition: all 0.3s ease;
+
+    &.active {
+      background: $accent-green;
+      box-shadow: 0 0 8px rgba($accent-green, 0.5);
+      animation: pulse 2s infinite;
+    }
+
+    &.loading {
+      background: $accent-gold;
+      animation: pulse 1s infinite;
+    }
+  }
+
+  .refresh-btn {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    color: $text-secondary;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .refresh-icon {
+      width: 18px;
+      height: 18px;
+
+      &.spinning {
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    &:hover:not(:disabled) {
+      border-color: $accent-gold;
+      color: $accent-gold;
+      background: rgba($accent-gold, 0.1);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Loading & Error States
+.loading-state, .error-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  text-align: center;
+  color: $text-secondary;
+  font-size: 14px;
+}
+
+.error-state {
+  flex-direction: column;
+  color: $accent-red;
+
+  .error-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+  }
+
+  .retry-btn {
+    margin-top: 12px;
+    padding: 8px 20px;
+    background: rgba($accent-red, 0.1);
+    border: 1px solid $accent-red;
+    color: $accent-red;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba($accent-red, 0.2);
+    }
+  }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid $border-color;
+  border-top-color: $accent-gold;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// Quick Stats Row
+.quick-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.stat-card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba($accent-gold, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .stat-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+
+    .stat-icon {
+      width: 16px;
+      height: 16px;
+      color: $accent-gold;
+    }
+
+    .price-source {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+  }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: $text-primary;
+
+    &.positive {
+      color: $accent-green;
+    }
+
+    &.negative {
+      color: $accent-red;
+    }
+  }
+
+  &.price-card {
+    background: linear-gradient(135deg, rgba($accent-gold, 0.05) 0%, $bg-card 100%);
+    border-color: rgba($accent-gold, 0.2);
+
+    .price-value {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      color: $accent-gold;
+    }
+  }
+
+  &.sentiment-stat-card {
+    .sentiment-value {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+
+      .sentiment-label {
+        font-size: 12px;
+        font-weight: 500;
+        opacity: 0.8;
+      }
+    }
+  }
+
+  &.risk-stat-card {
+    .risk-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+    }
+  }
+}
+
+// Two Column Layout
+.two-column-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.left-column {
+  flex: 0 0 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 60%;
+  min-width: 0;
+}
+
+.right-column {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  max-width: 40%;
+  min-width: 0;
+}
+
+// Cards
+.card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba($accent-purple, 0.2);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-secondary;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.clickable {
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 0;
+      margin: -4px 0 10px 0;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $text-primary;
+      }
+    }
+
+    .card-icon {
+      width: 18px;
+      height: 18px;
+      color: $accent-gold;
+    }
+
+    .toggle-btn {
+      margin-left: auto;
+      background: $bg-input;
+      border: 1px solid $border-color;
+      color: $text-secondary;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
+
+      &:hover {
+        background: $border-color;
+        color: $text-primary;
+      }
+    }
+
+    .news-count {
+      margin-left: auto;
+      background: rgba($accent-gold, 0.15);
+      color: $accent-gold;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+  }
+}
+
+// Indicators Grid
+.indicators-card {
+  .indicators-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .indicator-item {
+    text-align: center;
+    padding: 14px 12px;
+    background: $bg-input;
+    border-radius: 10px;
+    border: 1px solid $border-color;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: rgba($accent-gold, 0.3);
+    }
+  }
+
+  .indicator-label {
+    font-size: 11px;
+    color: $text-secondary;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+  }
+
+  .indicator-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: $text-primary;
+    margin-bottom: 4px;
+
+    &.overbought { color: $accent-red; }
+    &.oversold { color: $accent-green; }
+    &.positive { color: $accent-green; }
+    &.negative { color: $accent-red; }
+  }
+
+  .indicator-status {
+    font-size: 10px;
+    font-weight: 600;
+
+    .status-overbought { color: $accent-red; }
+    .status-oversold { color: $accent-green; }
+    .status-bullish { color: $accent-green; }
+    .status-bearish { color: $accent-red; }
+    .status-neutral { color: $text-secondary; }
+  }
+}
+
+// Summary Card
+.summary-card {
+  .summary-content {
+    padding-top: 12px;
+    border-top: 1px solid $border-color;
+  }
+
+  .summary-text {
+    color: $text-primary;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  .bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 10px 0 10px 24px;
+      position: relative;
+      color: $text-secondary;
+      font-size: 13px;
+      line-height: 1.6;
+      border-bottom: 1px solid rgba($border-color, 0.5);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: $accent-gold;
+        font-weight: bold;
+      }
+    }
+  }
+
+  // Highlight terms
+  ::ng-deep {
+    .bullish-term {
+      color: $accent-green;
+      font-weight: 700;
+      background: rgba($accent-green, 0.12);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .bearish-term {
+      color: $accent-red;
+      font-weight: 700;
+      background: rgba($accent-red, 0.12);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .neutral-term {
+      color: $accent-gold;
+      font-weight: 600;
+      background: rgba($accent-gold, 0.12);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  }
+}
+
+// News Card
+.news-card {
+  min-height: 300px;
+
+  .news-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 8px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $border-color;
+      border-radius: 3px;
+    }
+  }
+
+  .no-news-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 20px;
+    color: $text-secondary;
+    font-size: 13px;
+
+    .no-news-icon {
+      width: 40px;
+      height: 40px;
+      opacity: 0.5;
+    }
+  }
+
+  .news-item {
+    background: $bg-input;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: rgba($accent-gold, 0.4);
+      transform: translateX(3px);
+    }
+
+    &.high-impact {
+      border-left: 3px solid $accent-red;
+    }
+
+    .news-impact {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+
+      &.impact-high {
+        background: rgba($accent-red, 0.15);
+        color: $accent-red;
+      }
+
+      &.impact-medium {
+        background: rgba($accent-gold, 0.15);
+        color: $accent-gold;
+      }
+
+      &.impact-low {
+        background: rgba($accent-green, 0.15);
+        color: $accent-green;
+      }
+    }
+
+    .news-title {
+      display: block;
+      color: $text-primary;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      line-height: 1.5;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $accent-gold;
+      }
+    }
+
+    .news-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: $text-secondary;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .two-column-layout {
+    flex-direction: column;
+  }
+
+  .left-column,
+  .right-column {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .news-card .news-list-container {
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .quick-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .indicators-card .indicators-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    .header-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+}

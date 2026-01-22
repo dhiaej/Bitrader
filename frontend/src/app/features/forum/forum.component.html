@@ -1,0 +1,68 @@
+<div class="forum-container">
+  <div class="forum-header">
+    <h1>Discussion Forum</h1>
+    <p class="subtitle">Connect with the community based on your reputation level</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Loading categories...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button (click)="loadCategories()" class="btn-retry">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !error" class="categories-container">
+    <div *ngFor="let group of groupedCategories" class="category-group">
+      <div class="group-header">
+        <h2 class="level-title">
+          <span class="badge" [ngClass]="getLevelBadgeClass(group.categories[0].min_reputation_required)">
+            {{ group.level }}
+          </span>
+          {{ group.level }} Lounge
+        </h2>
+        <p class="group-description">
+          <span *ngIf="group.level === 'Normal'">Open to all users</span>
+          <span *ngIf="group.level === 'Pro'">Reputation ≥ 500 required to post</span>
+          <span *ngIf="group.level === 'Expert'">Reputation ≥ 1000 required to post</span>
+        </p>
+      </div>
+
+      <div class="categories-grid">
+        <div *ngFor="let category of group.categories" class="category-card" [routerLink]="['/forum/category', category.id]">
+          <div class="category-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 7H17M7 11H17M7 15H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="category-info">
+            <h3 class="category-name">{{ category.name }}</h3>
+            <p class="category-description">{{ category.description || 'No description' }}</p>
+            <div class="category-stats">
+              <span class="stat">
+                <strong>{{ category.post_count || 0 }}</strong> posts
+              </span>
+              <span class="stat" *ngIf="category.min_reputation_required > 0">
+                Reputation: {{ category.min_reputation_required }}+
+              </span>
+            </div>
+          </div>
+          <div class="category-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="currentUser" class="user-reputation-info">
+    <p>
+      Your reputation: 
+      <strong>{{ getUserReputationScore() }}</strong>
+      <span class="badge" [ngClass]="getLevelBadgeClass(getUserReputationScore())">
+        {{ getLevelName(getUserReputationScore()) }}
+      </span>
+    </p>
+  </div>
+</div>
+

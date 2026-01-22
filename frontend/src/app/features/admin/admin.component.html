@@ -1,0 +1,1426 @@
+<div class="admin-page">
+  <header class="admin-header">
+    <div class="header-left">
+      <h1>Admin Dashboard</h1>
+      <p class="subtitle">Platform management and monitoring</p>
+    </div>
+    <div class="header-actions">
+      <button class="logout-btn" (click)="logout()">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 17L21 12L16 7M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <div class="error-alert" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'overview'"
+      (click)="loadOverview()"
+    >
+      Overview
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'users'"
+      (click)="loadUsers()"
+    >
+      Users
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'trades'"
+      (click)="loadRecentTrades()"
+    >
+      Trades
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'disputes'"
+      (click)="loadDisputes()"
+    >
+      Disputes
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'suspicious'"
+      (click)="loadSuspiciousEvents()"
+    >
+      AI Alerts
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'courses'"
+      (click)="loadCourses()"
+    >
+      Courses
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading...</p>
+  </div>
+
+  <!-- Overview Tab -->
+  <div class="admin-content overview-dashboard" *ngIf="!isLoading && activeTab === 'overview' && stats">
+    <!-- KPI Cards Row -->
+    <div class="kpi-cards-grid">
+      <div class="kpi-card primary">
+        <div class="kpi-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">Total Users</div>
+          <div class="kpi-value">{{ stats.users.total }}</div>
+          <div class="kpi-change positive">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 19V5M5 12L12 5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            +{{ stats.users.new_this_week }} this week
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card success">
+        <div class="kpi-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 12L12 17L22 7M2 12L7 17L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">Active Users</div>
+          <div class="kpi-value">{{ stats.users.active }}</div>
+          <div class="kpi-meta">{{ (stats.users.active / stats.users.total * 100) | number:'1.0-0' }}% of total</div>
+        </div>
+      </div>
+
+      <div class="kpi-card warning">
+        <div class="kpi-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 12V22H4V12M2 7L12 2L22 7V12H2V7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">Total Trades</div>
+          <div class="kpi-value">{{ stats.trades.orderbook_total + stats.trades.p2p_total }}</div>
+          <div class="kpi-meta">{{ stats.trades.p2p_completion_rate | number:'1.0-0' }}% completion rate</div>
+        </div>
+      </div>
+
+      <div class="kpi-card info">
+        <div class="kpi-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">Trade Volume</div>
+          <div class="kpi-value">${{ stats.financial.total_volume_usd | number:'1.0-0' }}</div>
+          <div class="kpi-meta">{{ stats.financial.total_transactions }} transactions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary Stats Row -->
+    <div class="secondary-stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon verified">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12L11 14L15 10M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-label">Verified Users</div>
+          <div class="stat-value-sm">{{ stats.users.verified }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-icon orderbook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 3H21V21H3V3ZM9 3V21M3 9H21M3 15H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-label">Orderbook Trades</div>
+          <div class="stat-value-sm">{{ stats.trades.orderbook_total }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-icon p2p">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-label">P2P Trades</div>
+          <div class="stat-value-sm">{{ stats.trades.p2p_total }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-icon pending">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-value-sm">{{ stats.orders.pending }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-icon ads">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M19 20H5C3.89543 20 3 19.1046 3 18V6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V18C21 19.1046 20.1046 20 19 20ZM8 10L16 10M8 14H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-label">Active P2P Ads</div>
+          <div class="stat-value-sm">{{ stats.p2p_ads.active }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-icon disputes">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-label">Open Disputes</div>
+          <div class="stat-value-sm">{{ stats.disputes.open }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+      <!-- User Growth Chart -->
+      <div class="chart-container large">
+        <div class="chart-header">
+          <h3>User Growth Trend</h3>
+          <span class="chart-subtitle">Last 7 days</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart
+            [data]="userGrowthChartData"
+            [options]="userGrowthChartOptions"
+            [type]="userGrowthChartType">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Trades Volume Chart -->
+      <div class="chart-container large">
+        <div class="chart-header">
+          <h3>Trading Volume</h3>
+          <span class="chart-subtitle">Orderbook vs P2P</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart
+            [data]="tradesVolumeChartData"
+            [options]="tradesVolumeChartOptions"
+            [type]="tradesVolumeChartType">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Trade Distribution Pie Chart -->
+      <div class="chart-container medium">
+        <div class="chart-header">
+          <h3>Trade Distribution</h3>
+          <span class="chart-subtitle">By type</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart
+            [data]="tradeDistributionChartData"
+            [options]="tradeDistributionChartOptions"
+            [type]="tradeDistributionChartType">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Platform Health -->
+      <div class="chart-container medium platform-health">
+        <div class="chart-header">
+          <h3>Platform Health</h3>
+          <span class="chart-subtitle">Key metrics</span>
+        </div>
+        <div class="health-metrics">
+          <div class="health-item">
+            <div class="health-bar">
+              <div class="health-fill success" [style.width.%]="(stats.users.active / stats.users.total * 100)"></div>
+            </div>
+            <div class="health-label">
+              <span>User Activity</span>
+              <strong>{{ (stats.users.active / stats.users.total * 100) | number:'1.0-0' }}%</strong>
+            </div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-bar">
+              <div class="health-fill warning" [style.width.%]="stats.trades.p2p_completion_rate"></div>
+            </div>
+            <div class="health-label">
+              <span>P2P Completion</span>
+              <strong>{{ stats.trades.p2p_completion_rate | number:'1.0-0' }}%</strong>
+            </div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-bar">
+              <div class="health-fill info" [style.width.%]="(stats.users.verified / stats.users.total * 100)"></div>
+            </div>
+            <div class="health-label">
+              <span>User Verification</span>
+              <strong>{{ (stats.users.verified / stats.users.total * 100) | number:'1.0-0' }}%</strong>
+            </div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-bar">
+              <div class="health-fill" [class.success]="stats.reputation.avg_score >= 4" [class.warning]="stats.reputation.avg_score >= 3 && stats.reputation.avg_score < 4" [class.danger]="stats.reputation.avg_score < 3" [style.width.%]="(stats.reputation.avg_score / 5 * 100)"></div>
+            </div>
+            <div class="health-label">
+              <span>Avg Reputation</span>
+              <strong>{{ stats.reputation.avg_score | number:'1.1-1' }}/5</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Tab -->
+  <div class="admin-content" *ngIf="!isLoading && activeTab === 'users'">
+    <div class="users-filters">
+      <input
+        type="text"
+        [(ngModel)]="usersSearch"
+        placeholder="Search by username, email..."
+        (keyup.enter)="searchUsers()"
+      >
+      <select [(ngModel)]="usersFilterActive">
+        <option [ngValue]="null">All statuses</option>
+        <option [ngValue]="true">Active only</option>
+        <option [ngValue]="false">Inactive only</option>
+      </select>
+      <select [(ngModel)]="usersFilterAdmin">
+        <option [ngValue]="null">All users</option>
+        <option [ngValue]="true">Admins only</option>
+        <option [ngValue]="false">Non-admins only</option>
+      </select>
+      <button (click)="searchUsers()">Search</button>
+    </div>
+
+    <div class="users-list" *ngIf="usersList">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Admin</th>
+            <th>Verified</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of usersList.users" (click)="loadUserDetails(user.id)">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span [class]="user.is_active ? 'badge active' : 'badge inactive'">
+                {{ user.is_active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <span [class]="user.is_admin ? 'badge admin' : 'badge user'">
+                {{ user.is_admin ? 'Admin' : 'User' }}
+              </span>
+            </td>
+            <td>
+              <span [class]="user.is_verified ? 'badge verified' : 'badge unverified'">
+                {{ user.is_verified ? 'Verified' : 'Unverified' }}
+              </span>
+            </td>
+            <td>
+              <button (click)="toggleUserActive(user); $event.stopPropagation()">
+                {{ user.is_active ? 'Deactivate' : 'Activate' }}
+              </button>
+              <button (click)="toggleUserAdmin(user); $event.stopPropagation()">
+                {{ user.is_admin ? 'Remove Admin' : 'Grant Admin' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <button (click)="prevPageUsers()" [disabled]="usersSkip === 0">Previous</button>
+        <span>Page {{ Math.floor(usersSkip / usersLimit) + 1 }} / {{ Math.ceil((usersList.total || 0) / usersLimit) }}</span>
+        <button (click)="nextPageUsers()" [disabled]="usersSkip + usersLimit >= usersList.total">Next</button>
+      </div>
+
+      <!-- User Details Modal -->
+      <div class="user-details" *ngIf="selectedUser">
+        <h3>Details: {{ selectedUser.user.username }}</h3>
+        <div class="details-grid">
+          <div>
+            <strong>Email:</strong> {{ selectedUser.user.email }}
+          </div>
+          <div>
+            <strong>Wallets:</strong> {{ selectedUser.stats.wallets }}
+          </div>
+          <div>
+            <strong>Orders:</strong> {{ selectedUser.stats.orders }}
+          </div>
+          <div>
+            <strong>P2P Ads:</strong> {{ selectedUser.stats.p2p_ads }}
+          </div>
+          <div>
+            <strong>P2P Trades:</strong> {{ selectedUser.stats.p2p_trades }}
+          </div>
+          <div>
+            <strong>Reputation Score:</strong> {{ selectedUser.stats.reputation.score }}
+          </div>
+        </div>
+        <button (click)="selectedUser = null">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trades Tab -->
+  <div class="admin-content" *ngIf="!isLoading && activeTab === 'trades' && recentTrades">
+    <h3>Recent Trades (Orderbook)</h3>
+    <table class="trades-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Instrument</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trade of recentTrades.orderbook_trades">
+          <td>{{ trade.id }}</td>
+          <td>{{ trade.instrument }}</td>
+          <td>{{ trade.price | number:'1.2-2' }}</td>
+          <td>{{ trade.quantity | number:'1.8-8' }}</td>
+          <td>{{ trade.total_amount | number:'1.2-2' }}</td>
+          <td>{{ trade.created_at | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Recent Trades (P2P)</h3>
+    <table class="trades-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Currency</th>
+          <th>Amount</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trade of recentTrades.p2p_trades">
+          <td>{{ trade.id }}</td>
+          <td>{{ trade.currency }}</td>
+          <td>{{ trade.amount | number:'1.8-8' }}</td>
+          <td>{{ trade.price | number:'1.2-2' }}</td>
+          <td>{{ trade.status }}</td>
+          <td>{{ trade.created_at | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Disputes Tab -->
+  <div class="admin-content" *ngIf="!isLoading && activeTab === 'disputes'">
+    <div class="disputes-header-section">
+      <h2>Dispute Management</h2>
+      <div class="disputes-stats" *ngIf="disputes">
+        <div class="stat-item">
+          <span class="stat-label">Total:</span>
+          <span class="stat-value">{{ disputes.total }}</span>
+        </div>
+        <div class="stat-item open">
+          <span class="stat-label">Open:</span>
+          <span class="stat-value">{{ getDisputesByStatus('OPEN') }}</span>
+        </div>
+        <div class="stat-item review">
+          <span class="stat-label">In Review:</span>
+          <span class="stat-value">{{ getDisputesByStatus('IN_REVIEW') }}</span>
+        </div>
+        <div class="stat-item resolved">
+          <span class="stat-label">Resolved:</span>
+          <span class="stat-value">{{ getDisputesByStatus('RESOLVED') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="disputes-list" *ngIf="disputes && disputes.disputes.length > 0">
+      <div *ngFor="let dispute of disputes.disputes" class="dispute-card-admin">
+        <div class="dispute-card-header">
+          <div class="dispute-id">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <strong>Dispute #{{ dispute.id }}</strong>
+          </div>
+          <span class="status-badge-admin" [style.background-color]="getDisputeStatusColor(dispute.status)">
+            {{ dispute.status }}
+          </span>
+        </div>
+
+        <div class="dispute-card-body">
+          <div class="dispute-info-grid">
+            <div class="info-item">
+              <span class="label">Trade ID:</span>
+              <span class="value">#{{ dispute.trade_id }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Filed By:</span>
+              <span class="value">User #{{ dispute.filed_by }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Created:</span>
+              <span class="value">{{ dispute.created_at | date:'short' }}</span>
+            </div>
+            <div class="info-item" *ngIf="dispute.resolved_at">
+              <span class="label">Resolved:</span>
+              <span class="value">{{ dispute.resolved_at | date:'short' }}</span>
+            </div>
+          </div>
+
+          <div class="dispute-reason-preview">
+            <strong>Reason:</strong>
+            <p>{{ dispute.reason | slice:0:150 }}{{ dispute.reason.length > 150 ? '...' : '' }}</p>
+          </div>
+        </div>
+
+        <div class="dispute-card-actions">
+          <button class="btn-view-details" (click)="viewDisputeDetails(dispute.id)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            View Full Details
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-disputes" *ngIf="disputes && disputes.disputes.length === 0">
+      <div class="empty-icon">⚖️</div>
+      <h3>No Disputes Found</h3>
+      <p>There are currently no disputes to review.</p>
+    </div>
+  </div>
+
+  <!-- Suspicious Events Tab -->
+  <div class="admin-content ai-alerts-section" *ngIf="!isLoading && activeTab === 'suspicious'">
+    <div class="ai-alerts-header">
+      <div class="header-content">
+        <div class="ai-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z"></path>
+            <path d="M2 17L12 22L22 17"></path>
+            <path d="M2 12L12 17L22 12"></path>
+          </svg>
+        </div>
+        <div>
+          <h2>AI Security Alerts</h2>
+          <p class="subtitle">Machine learning-powered fraud detection and risk analysis</p>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <button class="refresh-btn" (click)="loadSuspiciousEvents()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="alerts-stats-grid" *ngIf="suspiciousEvents">
+      <div class="alert-stat-card critical">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Alerts</div>
+          <div class="stat-value">{{ suspiciousEvents.total }}</div>
+        </div>
+      </div>
+      <div class="alert-stat-card warning">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Open</div>
+          <div class="stat-value">{{ getAlertsByStatus('OPEN') }}</div>
+        </div>
+      </div>
+      <div class="alert-stat-card info">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Under Review</div>
+          <div class="stat-value">{{ getAlertsByStatus('REVIEWED') }}</div>
+        </div>
+      </div>
+      <div class="alert-stat-card success">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Resolved</div>
+          <div class="stat-value">{{ getAlertsByStatus('CONFIRMED') + getAlertsByStatus('FALSE_POSITIVE') }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="ai-alerts-filters">
+      <div class="filter-group">
+        <label>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Status
+        </label>
+        <select [(ngModel)]="suspiciousStatus" (change)="filterSuspiciousEvents()">
+          <option [ngValue]="null">All Statuses</option>
+          <option value="OPEN">🔴 Open</option>
+          <option value="REVIEWED">🟡 Under Review</option>
+          <option value="CONFIRMED">Confirmed Fraud</option>
+          <option value="FALSE_POSITIVE">⚪ False Positive</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          Risk Score (Min)
+        </label>
+        <input
+          type="number"
+          [(ngModel)]="suspiciousMinScore"
+          (change)="filterSuspiciousEvents()"
+          min="0"
+          max="100"
+          placeholder="0-100"
+        >
+      </div>
+      <button (click)="filterSuspiciousEvents()" class="apply-filter-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        Apply Filters
+      </button>
+      <button (click)="clearAlertsFilters()" class="clear-filter-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Clear
+      </button>
+    </div>
+
+    <!-- Events List -->
+    <div class="ai-alerts-list" *ngIf="suspiciousEvents">
+      <div *ngIf="suspiciousEvents.events.length === 0" class="no-alerts">
+        <div class="empty-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z"></path>
+            <path d="M2 17L12 22L22 17"></path>
+            <path d="M2 12L12 17L22 12"></path>
+          </svg>
+        </div>
+        <h3>No Alerts Found</h3>
+        <p>There are no suspicious activities matching your filter criteria.</p>
+      </div>
+
+      <div *ngFor="let event of suspiciousEvents.events" class="ai-alert-card" [attr.data-risk-level]="getRiskLevel(event.score)">
+        <div class="alert-card-header">
+          <div class="alert-id-section">
+            <div class="alert-id">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Alert #{{ event.id }}
+            </div>
+            <div class="alert-timestamp">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {{ event.created_at | date:'MMM d, y h:mm a' }}
+            </div>
+          </div>
+          <div class="alert-meta">
+            <div class="risk-score-badge" [style.background]="getScoreColor(event.score) + '20'" [style.color]="getScoreColor(event.score)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              </svg>
+              {{ event.score | number:'1.0-0' }}% Risk
+            </div>
+            <span [class]="'alert-status-badge status-' + event.status.toLowerCase()">
+              {{ getStatusLabel(event.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="alert-card-body">
+          <div class="transaction-details">
+            <div class="detail-item">
+              <div class="detail-icon user">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div>
+                <div class="detail-label">User</div>
+                <div class="detail-value">ID: {{ event.user_id }}</div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-icon transaction">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <div>
+                <div class="detail-label">Transaction Type</div>
+                <div class="detail-value">{{ event.transaction_type }}</div>
+              </div>
+            </div>
+            <div class="detail-item" *ngIf="event.transaction_id">
+              <div class="detail-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+              </div>
+              <div>
+                <div class="detail-label">Transaction ID</div>
+                <div class="detail-value">#{{ event.transaction_id }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="triggered-rules-section" *ngIf="event.triggered_rules && event.triggered_rules.length > 0">
+            <div class="section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              Triggered Rules ({{ event.triggered_rules.length }})
+            </div>
+            <div class="rules-chips">
+              <span class="rule-chip" *ngFor="let rule of event.triggered_rules">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                {{ rule }}
+              </span>
+            </div>
+          </div>
+
+          <div class="ai-explanation" *ngIf="event.explanation">
+            <div class="explanation-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <strong>AI Analysis</strong>
+            </div>
+            <p>{{ event.explanation }}</p>
+          </div>
+        </div>
+
+        <div class="alert-card-actions">
+          <button class="action-btn view-btn" (click)="viewEventDetails(event)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            View Details
+          </button>
+          <button
+            class="action-btn review-btn"
+            (click)="updateEventStatus(event, 'REVIEWED')"
+            *ngIf="event.status === 'OPEN'"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            </svg>
+            Start Review
+          </button>
+          <button
+            class="action-btn confirm-btn"
+            (click)="updateEventStatus(event, 'CONFIRMED')"
+            *ngIf="event.status === 'REVIEWED' || event.status === 'OPEN'"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Confirm Fraud
+          </button>
+          <button
+            class="action-btn false-btn"
+            (click)="updateEventStatus(event, 'FALSE_POSITIVE')"
+            *ngIf="event.status === 'REVIEWED' || event.status === 'OPEN'"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            False Positive
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="suspiciousEvents && suspiciousEvents.total > 0">
+      <button (click)="prevPageSuspicious()" [disabled]="suspiciousSkip === 0">Previous</button>
+      <span>
+        Page {{ Math.floor(suspiciousSkip / suspiciousLimit) + 1 }} /
+        {{ Math.ceil(suspiciousEvents.total / suspiciousLimit) }}
+        ({{ suspiciousEvents.total }} total)
+      </span>
+      <button
+        (click)="nextPageSuspicious()"
+        [disabled]="suspiciousSkip + suspiciousLimit >= suspiciousEvents.total"
+      >
+        Next
+      </button>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div class="event-details-modal" *ngIf="selectedEvent">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Alert Details #{{ selectedEvent.id }}</h3>
+          <button class="close-btn" (click)="closeEventDetails()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="detail-section">
+            <h4>General Information</h4>
+            <div class="detail-grid">
+              <div><strong>User ID:</strong> {{ selectedEvent.user_id }}</div>
+              <div><strong>Transaction Type:</strong> {{ selectedEvent.transaction_type }}</div>
+              <div><strong>Transaction ID:</strong> {{ selectedEvent.transaction_id || 'N/A' }}</div>
+              <div><strong>Score:</strong> <span [style.color]="getScoreColor(selectedEvent.score)">{{ selectedEvent.score | number:'1.1-1' }}</span></div>
+              <div><strong>Status:</strong> {{ selectedEvent.status }}</div>
+              <div><strong>Created:</strong> {{ selectedEvent.created_at | date:'medium' }}</div>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedEvent.triggered_rules && selectedEvent.triggered_rules.length > 0">
+            <h4>Triggered Rules</h4>
+            <div class="rules-badges">
+              <span class="rule-badge" *ngFor="let rule of selectedEvent.triggered_rules">{{ rule }}</span>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedEvent.features">
+            <h4>Features (snapshot)</h4>
+            <pre class="features-json">{{ selectedEvent.features | json }}</pre>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedEvent.explanation">
+            <h4>Explanation</h4>
+            <p>{{ selectedEvent.explanation }}</p>
+          </div>
+
+          <div class="detail-section">
+            <h4>Admin Notes</h4>
+            <textarea
+              [(ngModel)]="selectedEvent.admin_notes"
+              placeholder="Add notes..."
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div class="detail-section">
+            <h4>Actions</h4>
+            <div class="action-buttons">
+              <button
+                class="btn-review"
+                (click)="updateEventStatus(selectedEvent, 'REVIEWED', selectedEvent.admin_notes ?? undefined)"
+                *ngIf="selectedEvent.status === 'OPEN'"
+              >
+                Mark as Reviewed
+              </button>
+              <button
+                class="btn-confirm"
+                (click)="updateEventStatus(selectedEvent, 'CONFIRMED', selectedEvent.admin_notes ?? undefined)"
+                *ngIf="selectedEvent.status === 'REVIEWED' || selectedEvent.status === 'OPEN'"
+              >
+                Confirm Fraud
+              </button>
+              <button
+                class="btn-false-positive"
+                (click)="updateEventStatus(selectedEvent, 'FALSE_POSITIVE', selectedEvent.admin_notes ?? undefined)"
+                *ngIf="selectedEvent.status === 'REVIEWED' || selectedEvent.status === 'OPEN'"
+              >
+                Mark as False Positive
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses Tab -->
+  <div class="admin-content courses-section" *ngIf="!isLoading && activeTab === 'courses'">
+    <div class="courses-header">
+      <h2>📚 Course Management</h2>
+      <p class="subtitle">Create and manage trading courses and formations</p>
+    </div>
+
+    <!-- YouTube Formation Creation Form -->
+    <div class="youtube-formation-form">
+      <div class="form-header">
+        <h3>📺 Create Formation from YouTube Videos</h3>
+      </div>
+      
+      <div class="form-container">
+        <div class="form-group">
+          <label for="youtube-title">Title de la Formation *</label>
+          <input
+            type="text"
+            id="youtube-title"
+            [(ngModel)]="youtubeTitle"
+            [disabled]="isCreatingYouTube"
+            placeholder="Ex: Introduction au Trading"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="youtube-description">Description (optionnel)</label>
+          <textarea
+            id="youtube-description"
+            [(ngModel)]="youtubeDescription"
+            [disabled]="isCreatingYouTube"
+            placeholder="Description de la formation"
+            class="form-textarea"
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="youtube-level">Niveau</label>
+          <select
+            id="youtube-level"
+            [(ngModel)]="youtubeLevel"
+            [disabled]="isCreatingYouTube"
+            class="form-select"
+          >
+            <option value="BEGINNER">Débutant</option>
+            <option value="INTERMEDIATE">Intermédiaire</option>
+            <option value="ADVANCED">Avancé</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Vidéos YouTube *</label>
+          <div class="youtube-urls-list">
+            <div class="youtube-url-item" *ngFor="let url of youtubeUrls; let i = index">
+              <div class="url-input-group">
+                <input
+                  type="text"
+                  [(ngModel)]="youtubeUrls[i]"
+                  [disabled]="isCreatingYouTube"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  class="form-input youtube-url-input"
+                />
+                <input
+                  type="text"
+                  [(ngModel)]="youtubeTitles[i]"
+                  [disabled]="isCreatingYouTube"
+                  placeholder="Titre de la vidéo (optionnel)"
+                  class="form-input youtube-title-input"
+                />
+                <button
+                  *ngIf="youtubeUrls.length > 1"
+                  (click)="removeYouTubeUrl(i)"
+                  [disabled]="isCreatingYouTube"
+                  class="btn-remove-url"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <button
+              (click)="addYouTubeUrl()"
+              [disabled]="isCreatingYouTube"
+              class="btn-add-url"
+            >
+              + Ajouter une vidéo
+            </button>
+          </div>
+        </div>
+        
+        <div class="error-message" *ngIf="youtubeCreateError">
+          <p>❌ {{ youtubeCreateError }}</p>
+        </div>
+        
+        <div class="success-message" *ngIf="youtubeCreateSuccess">
+          <p>✅ {{ youtubeCreateSuccess }}</p>
+        </div>
+        
+        <button
+          (click)="openUserSelectionModal()"
+          [disabled]="!canCreateYouTubeFormation() || isCreatingYouTube"
+          class="btn-create-formation"
+        >
+          <span *ngIf="isCreatingYouTube" class="spinner"></span>
+          {{ isCreatingYouTube ? 'Creating...' : '📺 Create Formation' }}
+        </button>
+        
+        <div class="form-info">
+          <p><strong>ℹ️ Instructions :</strong></p>
+          <ul>
+            <li>✓ Entrez le titre de la formation</li>
+            <li>✓ Ajoutez les URLs YouTube des vidéos</li>
+            <li>✓ Les vidéos seront affichées dans l'ordre</li>
+            <li>✓ Les utilisateurs devront compléter chaque vidéo avant de passer à la suivante</li>
+          </ul>
+          <p class="note">💡 Formats d'URL acceptés : youtube.com/watch?v=..., youtu.be/..., youtube.com/embed/...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Existing Courses List -->
+    <div class="courses-list-section" *ngIf="coursesList">
+      <h3>Formations Existantes</h3>
+      <div class="courses-grid" *ngIf="coursesList.length > 0">
+        <div class="course-card" *ngFor="let course of coursesList">
+          <div class="course-header">
+            <h4>{{ course.title }}</h4>
+            <span class="course-level" [class]="course.level.toLowerCase()">{{ course.level }}</span>
+          </div>
+          <p class="course-description">{{ course.description || 'Aucune description' }}</p>
+          <div class="course-meta">
+            <span>📹 {{ course.content_json?.length || 0 }} leçons</span>
+            <span *ngIf="course.estimated_duration">⏱️ {{ course.estimated_duration }} min</span>
+            <span [class]="course.is_active ? 'active' : 'inactive'">
+              {{ course.is_active ? '✅ Actif' : '❌ Inactif' }}
+            </span>
+          </div>
+          <div class="course-actions">
+            <button (click)="openUserSelectionModal(course)" class="btn-assign">
+              👥 Assign Users
+            </button>
+            <button (click)="toggleCourseActive(course)" class="btn-toggle">
+              {{ course.is_active ? 'Désactiver' : 'Activer' }}
+            </button>
+            <button (click)="deleteCourse(course)" class="btn-delete">Supprimer</button>
+          </div>
+        </div>
+      </div>
+      <div class="no-courses" *ngIf="coursesList.length === 0">
+        <p>Aucune formation disponible</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dispute Resolution Modal -->
+  <div class="dispute-resolution-modal" *ngIf="selectedDispute">
+    <div class="modal-overlay" (click)="closeDisputeDetails()"></div>
+    <div class="modal-content-large">
+      <div class="modal-header">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Dispute Resolution #{{ selectedDispute.dispute.id }}
+        </h2>
+        <button class="close-btn" (click)="closeDisputeDetails()">×</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Status Banner -->
+        <div class="status-banner" [style.background-color]="getDisputeStatusColor(selectedDispute.dispute.status)">
+          <strong>Status:</strong> {{ selectedDispute.dispute.status }}
+          <span *ngIf="selectedDispute.dispute.resolved_at"> - Resolved {{ selectedDispute.dispute.resolved_at | date:'medium' }}</span>
+        </div>
+
+        <!-- Alert Messages -->
+        <div class="alert-error" *ngIf="errorMessage" style="margin-bottom: 1.5rem;">
+          {{ errorMessage }}
+        </div>
+        <div class="alert-success" *ngIf="successMessage" style="margin-bottom: 1.5rem;">
+          {{ successMessage }}
+        </div>
+
+        <!-- Trade Information -->
+        <div class="detail-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Trade Details
+          </h3>
+          <div class="info-grid">
+            <div class="info-box">
+              <span class="label">Trade ID</span>
+              <span class="value">#{{ selectedDispute.trade.id }}</span>
+            </div>
+            <div class="info-box">
+              <span class="label">Currency</span>
+              <span class="value">{{ selectedDispute.trade.currency }}</span>
+            </div>
+            <div class="info-box">
+              <span class="label">Amount</span>
+              <span class="value">{{ selectedDispute.trade.amount | number:'1.2-8' }}</span>
+            </div>
+            <div class="info-box">
+              <span class="label">Price</span>
+              <span class="value">{{ selectedDispute.trade.price | number:'1.2-2' }} {{ selectedDispute.trade.fiat_currency }}</span>
+            </div>
+            <div class="info-box">
+              <span class="label">Total Fiat</span>
+              <span class="value">{{ selectedDispute.trade.total_fiat | number:'1.2-2' }} {{ selectedDispute.trade.fiat_currency }}</span>
+            </div>
+            <div class="info-box">
+              <span class="label">Trade Status</span>
+              <span class="value badge-status">{{ selectedDispute.trade.status }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parties Information -->
+        <div class="detail-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="7" r="4"/>
+              <circle cx="15" cy="7" r="4"/>
+              <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+              <path d="M15 13a4 4 0 0 1 4 4v2"/>
+            </svg>
+            Trade Parties
+          </h3>
+          <div class="parties-section">
+            <div class="party-card buyer">
+              <div class="party-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>
+                </svg>
+                <strong>Buyer</strong>
+              </div>
+              <div class="party-details">
+                <div><strong>ID:</strong> #{{ selectedDispute.buyer?.id }}</div>
+                <div><strong>Username:</strong> {{ selectedDispute.buyer?.username }}</div>
+                <div><strong>Email:</strong> {{ selectedDispute.buyer?.email }}</div>
+                <div><strong>Status:</strong> <span [class]="selectedDispute.buyer?.is_active ? 'active' : 'inactive'">{{ selectedDispute.buyer?.is_active ? 'Active' : 'Inactive' }}</span></div>
+              </div>
+            </div>
+            <div class="party-card seller">
+              <div class="party-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>
+                </svg>
+                <strong>Seller</strong>
+              </div>
+              <div class="party-details">
+                <div><strong>ID:</strong> #{{ selectedDispute.seller?.id }}</div>
+                <div><strong>Username:</strong> {{ selectedDispute.seller?.username }}</div>
+                <div><strong>Email:</strong> {{ selectedDispute.seller?.email }}</div>
+                <div><strong>Status:</strong> <span [class]="selectedDispute.seller?.is_active ? 'active' : 'inactive'">{{ selectedDispute.seller?.is_active ? 'Active' : 'Inactive' }}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Escrow Information -->
+        <div class="detail-section" *ngIf="selectedDispute.escrow">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="6" width="20" height="14" rx="2"/>
+              <path d="M2 10h20"/>
+              <circle cx="17" cy="14" r="2"/>
+            </svg>
+            Escrow Details
+          </h3>
+          <div class="info-grid">
+            <div class="info-box">
+              <span class="label">Amount Locked</span>
+              <span class="value">{{ selectedDispute.escrow.amount | number:'1.2-8' }} {{ selectedDispute.escrow.currency }}</span>
+            </div>
+            <div class="info-box">
+              <span class="label">Escrow Status</span>
+              <span class="value badge-status">{{ selectedDispute.escrow.status }}</span>
+            </div>
+            <div class="info-box">
+              <span class="label">Locked At</span>
+              <span class="value">{{ selectedDispute.escrow.locked_at | date:'medium' }}</span>
+            </div>
+            <div class="info-box" *ngIf="selectedDispute.escrow.released_at">
+              <span class="label">Released At</span>
+              <span class="value">{{ selectedDispute.escrow.released_at | date:'medium' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dispute Information -->
+        <div class="detail-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Dispute Information
+          </h3>
+          <div class="dispute-reason-full">
+            <strong>Filed By:</strong> {{ selectedDispute.dispute.filed_by === selectedDispute.buyer?.id ? 'Buyer' : 'Seller' }} ({{ selectedDispute.dispute.filed_by === selectedDispute.buyer?.id ? selectedDispute.buyer?.username : selectedDispute.seller?.username }})
+          </div>
+          <div class="dispute-reason-full">
+            <strong>Filed At:</strong> {{ selectedDispute.dispute.created_at | date:'medium' }}
+          </div>
+          <div class="dispute-reason-full">
+            <strong>Reason:</strong>
+            <p class="reason-text">{{ selectedDispute.dispute.reason }}</p>
+          </div>
+        </div>
+
+        <!-- Evidence -->
+        <div class="detail-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Evidence
+          </h3>
+          <div class="evidence-list" *ngIf="parseEvidence(selectedDispute.dispute.evidence).length > 0">
+            <div class="evidence-item" *ngFor="let item of parseEvidence(selectedDispute.dispute.evidence); let i = index">
+              <div class="evidence-number">#{{ i + 1 }}</div>
+              <div class="evidence-content">
+                <span class="evidence-user" *ngIf="item.username">Submitted by: {{ item.username }}</span>
+                <span class="evidence-time" *ngIf="item.timestamp">{{ item.timestamp | date:'medium' }}</span>
+                <p>{{ item.content || item }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="no-evidence" *ngIf="parseEvidence(selectedDispute.dispute.evidence).length === 0">
+            <p>No evidence has been submitted yet.</p>
+          </div>
+        </div>
+
+        <!-- Resolution Form (only if not resolved) -->
+        <div class="detail-section resolution-section" *ngIf="selectedDispute.dispute.status !== 'RESOLVED'">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Resolve Dispute
+          </h3>
+
+          <div class="resolution-options">
+            <label class="resolution-option" [class.selected]="refundToBuyer">
+              <input type="radio" name="resolution" [(ngModel)]="refundToBuyer" [value]="true" (change)="releaseToSeller = false">
+              <div class="option-content">
+                <div class="option-icon refund">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="11 17 6 12 11 7"/>
+                    <polyline points="18 17 13 12 18 7"/>
+                  </svg>
+                </div>
+                <div class="option-details">
+                  <strong>Refund to Buyer</strong>
+                  <p>Return the escrowed funds to the buyer</p>
+                </div>
+              </div>
+            </label>
+
+            <label class="resolution-option" [class.selected]="releaseToSeller">
+              <input type="radio" name="resolution" [(ngModel)]="releaseToSeller" [value]="true" (change)="refundToBuyer = false">
+              <div class="option-content">
+                <div class="option-icon release">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="13 17 18 12 13 7"/>
+                    <polyline points="6 17 11 12 6 7"/>
+                  </svg>
+                </div>
+                <div class="option-details">
+                  <strong>Release to Seller</strong>
+                  <p>Release the escrowed funds to the seller</p>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              Resolution Explanation <span style="color: #F6465D;">*</span>
+            </label>
+            <textarea
+              [(ngModel)]="resolutionText"
+              placeholder="Provide a detailed explanation of your decision. This will be visible to both parties..."
+              rows="6"
+            ></textarea>
+            <div class="input-hint">
+              Be clear and professional. Explain the reasoning behind your decision.
+            </div>
+          </div>
+
+          <div class="resolution-actions">
+            <button class="btn-cancel-resolution" (click)="closeDisputeDetails()">
+              Cancel
+            </button>
+            <button
+              class="btn-resolve"
+              (click)="resolveDispute()"
+              [disabled]="!resolutionText.trim() || (!refundToBuyer && !releaseToSeller) || isLoading"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              {{ isLoading ? 'Resolving...' : 'Resolve Dispute' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Resolution Details (if already resolved) -->
+        <div class="detail-section" *ngIf="selectedDispute.dispute.status === 'RESOLVED' && selectedDispute.dispute.resolution">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Resolution
+          </h3>
+          <div class="resolution-box">
+            <div class="resolution-meta">
+              <span><strong>Resolved By:</strong> Admin #{{ selectedDispute.dispute.resolved_by }}</span>
+              <span><strong>Date:</strong> {{ selectedDispute.dispute.resolved_at | date:'medium' }}</span>
+            </div>
+            <p class="resolution-text">{{ selectedDispute.dispute.resolution }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- User Selection Modal -->
+  <div class="user-selection-modal-overlay" *ngIf="showUserSelectionModal" (click)="closeUserSelectionModal()">
+    <div class="user-selection-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Select Users to Assign Formation</h3>
+        <button (click)="closeUserSelectionModal()" class="btn-close-modal">×</button>
+      </div>
+      
+      <div class="modal-content">
+        <p class="modal-description">Select the users who should have access to this formation. If no users are selected, the formation will be created but not assigned to anyone.</p>
+        
+        <div class="users-list-container" *ngIf="!isLoadingUsers">
+          <div class="users-list-header">
+            <span class="selected-count">{{ selectedUserIds.length }} user(s) selected</span>
+            <button (click)="selectedUserIds = []" class="btn-clear-selection" *ngIf="selectedUserIds.length > 0">Clear Selection</button>
+          </div>
+          
+          <div class="users-list">
+            <div
+              *ngFor="let user of availableUsers"
+              class="user-item"
+              [class.selected]="isUserSelected(user.id)"
+              (click)="toggleUserSelection(user.id)"
+            >
+              <input
+                type="checkbox"
+                [checked]="isUserSelected(user.id)"
+                (click)="$event.stopPropagation(); toggleUserSelection(user.id)"
+              />
+               <div class="user-info">
+                 <div class="user-name-row">
+                   <span class="user-name">{{ user.username }}</span>
+                   <span class="user-admin-badge" *ngIf="user.is_admin">Admin</span>
+                 </div>
+                 <span class="user-email">{{ user.email }}</span>
+               </div>
+            </div>
+          </div>
+          
+          <div class="no-users" *ngIf="availableUsers.length === 0">
+            <p>No users available</p>
+          </div>
+        </div>
+        
+        <div class="loading-users" *ngIf="isLoadingUsers">
+          <p>Loading users...</p>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button (click)="closeUserSelectionModal()" class="btn-cancel">Cancel</button>
+        <button (click)="confirmUserSelection()" class="btn-confirm" [disabled]="isCreatingYouTube">
+          <span *ngIf="!currentFormationToAssign">
+            {{ isCreatingYouTube ? 'Creating...' : 'Create Formation' }}
+          </span>
+          <span *ngIf="currentFormationToAssign">
+            {{ isCreatingYouTube ? 'Assigning...' : 'Assign Formation' }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+

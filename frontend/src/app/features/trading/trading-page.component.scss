@@ -1,0 +1,208 @@
+// Unified Design System Variables (matching Simulator)
+$bg-primary: #0b0e11;
+$bg-secondary: #111827;
+$bg-card: #1f2937;
+$bg-input: #0f1419;
+$border-color: #2B3139;
+$text-primary: #eaecef;
+$text-secondary: #9ca3af;
+$accent-gold: #F0B90B;
+$accent-green: #02c076;
+$accent-red: #f6465d;
+$accent-purple: #8b5cf6;
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: calc(100vh - 85px);
+  background-color: $bg-primary;
+  color: $text-primary;
+}
+
+.trading-page-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: calc(100vh - 85px);
+  border-top: 1px solid $border-color;
+}
+
+// Sidebar
+.trading-sidebar {
+  background: $bg-secondary;
+  border-right: 1px solid $border-color;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 3px;
+  }
+}
+
+// Main Content
+.trading-main {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: $bg-primary;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 4px;
+  }
+}
+
+// Section Header
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba($accent-gold, 0.05) 0%, rgba($accent-purple, 0.03) 100%);
+  border-bottom: 1px solid $border-color;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: $text-primary;
+
+    .title-icon {
+      width: 24px;
+      height: 24px;
+      color: $accent-gold;
+    }
+  }
+
+  .symbol-badge {
+    background: rgba($accent-gold, 0.15);
+    color: $accent-gold;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .price-display {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+
+    .current-price {
+      font-size: 22px;
+      font-weight: 700;
+      color: $text-primary;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    .price-change {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+
+      &.positive {
+        color: $accent-green;
+        background: rgba($accent-green, 0.1);
+      }
+
+      &.negative {
+        color: $accent-red;
+        background: rgba($accent-red, 0.1);
+      }
+    }
+  }
+}
+
+// Chart Container
+.trading-chart-container {
+  min-height: 450px;
+  flex: 1;
+  border-bottom: 1px solid $border-color;
+  background: $bg-primary;
+}
+
+// Trading Panel (AI Assistant)
+.trading-panel {
+  background: $bg-secondary;
+  min-height: 350px;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 4px;
+    border: 2px solid $bg-secondary;
+    
+    &:hover {
+      background-color: #6b7280;
+    }
+  }
+  
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 transparent;
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .trading-page-layout {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .trading-page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .trading-sidebar {
+    display: none;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+
+    .header-right {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .trading-chart-container {
+    min-height: 350px;
+  }
+}

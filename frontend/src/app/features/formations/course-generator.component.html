@@ -1,0 +1,154 @@
+<div class="course-generator-container">
+  <div class="generator-header">
+    <h1>Générateur de Cours</h1>
+    <p class="subtitle">Générer un cours de trading basé sur les données de marché réelles</p>
+  </div>
+
+  @if (!isAdmin()) {
+    <div class="error-message">
+      <p>⚠️ Accès réservé aux administrateurs</p>
+    </div>
+  } @else {
+    <div class="generator-content">
+      <!-- Selection Form -->
+      <div class="selection-card" [@fadeIn]>
+        <h2>Paramètres de Génération</h2>
+        
+        <div class="form-group">
+          <label for="symbol">Symbole de Trading</label>
+          <select
+            id="symbol"
+            [(ngModel)]="selectedSymbol"
+            [disabled]="isGenerating()"
+            class="form-select"
+          >
+            <option value="">Sélectionnez un symbole</option>
+            @for (symbol of availableSymbols(); track symbol) {
+              <option [value]="symbol">{{ symbol }}</option>
+            }
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="level">Niveau du Cours</label>
+          <select
+            id="level"
+            [(ngModel)]="selectedLevel"
+            [disabled]="isGenerating()"
+            class="form-select"
+          >
+            <option value="BEGINNER">Débutant</option>
+            <option value="INTERMEDIATE">Intermédiaire</option>
+            <option value="ADVANCED">Avancé</option>
+          </select>
+        </div>
+        
+        <button
+          (click)="generateCourse()"
+          [disabled]="!selectedSymbol() || isGenerating()"
+          class="btn-generate"
+        >
+          @if (isGenerating()) {
+            <span class="spinner"></span>
+            Génération en cours...
+          } @else {
+            🚀 Générer le Cours
+          }
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      @if (error()) {
+        <div class="error-message" [@fadeIn]>
+          <p>❌ {{ error() }}</p>
+        </div>
+      }
+
+      <!-- Generated Course Preview -->
+      @if (generatedCourse(); as course) {
+        <div class="course-preview" [@fadeIn]>
+          <div class="preview-header">
+            <h2>Aperçu du Cours Généré</h2>
+            <p class="preview-note">Vérifiez le contenu avant de sauvegarder</p>
+          </div>
+          
+          <div class="course-info">
+            <h3 class="course-title">{{ course.title }}</h3>
+            <p class="course-description">{{ course.description }}</p>
+            
+            <div class="course-meta">
+              <span class="meta-item">
+                <strong>Niveau:</strong> {{ getLevelLabel(course.level) }}
+              </span>
+              <span class="meta-item">
+                <strong>Durée estimée:</strong> {{ course.estimated_duration }} min
+              </span>
+              <span class="meta-item">
+                <strong>Nombre de leçons:</strong> {{ course.content_json?.length || 0 }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="lessons-preview">
+            <h4>Leçons ({{ course.content_json?.length || 0 }})</h4>
+            <div class="lessons-list">
+              @for (lesson of course.content_json; track lesson.id) {
+                <div class="lesson-preview-item">
+                  <div class="lesson-header">
+                    <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
+                    <span class="lesson-title">{{ lesson.title }}</span>
+                    <span class="lesson-duration">{{ lesson.duration }} min</span>
+                  </div>
+                  <p class="lesson-preview">{{ lesson.data.substring(0, 150) }}...</p>
+                </div>
+              }
+            </div>
+          </div>
+          
+          @if (course.quiz?.questions) {
+            <div class="quiz-preview">
+              <h4>Quiz ({{ course.quiz.questions.length }} questions)</h4>
+              <div class="questions-list">
+                @for (question of course.quiz.questions; track $index) {
+                  <div class="question-preview">
+                    <p class="question-text">{{ question.question }}</p>
+                    <ul class="options-list">
+                      @for (option of question.options; track $index) {
+                        <li [class.correct]="$index === question.correctAnswer">
+                          {{ getOptionLetter($index) }}. {{ option }}
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          
+          <div class="preview-actions">
+            <button
+              (click)="saveCourse()"
+              [disabled]="isGenerating()"
+              class="btn-save"
+            >
+              @if (isGenerating()) {
+                <span class="spinner"></span>
+                Sauvegarde...
+              } @else {
+                💾 Sauvegarder le Cours
+              }
+            </button>
+            <button
+              (click)="generatedCourse.set(null)"
+              [disabled]="isGenerating()"
+              class="btn-cancel"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+

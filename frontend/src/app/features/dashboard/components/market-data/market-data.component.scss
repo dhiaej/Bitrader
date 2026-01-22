@@ -1,0 +1,78 @@
+// Using the color palette defined in the main styles.scss
+// These are assumed based on project documentation.
+$secondary-dark: #1e2329;
+$border-gray: #474d57;
+$text-light: #eaecef;
+$text-muted: #848e9c;
+$success-green: #02c076;
+$danger-red: #f6465d;
+
+.market-data-container {
+  background-color: $secondary-dark;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid $border-gray;
+  color: $text-light;
+  height: 100%;
+}
+
+.market-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.market-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.market-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding-bottom: 10px;
+  border-bottom: 1px solid $border-gray;
+  font-size: 0.8rem;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.market-body {
+  font-size: 0.9rem;
+}
+
+.market-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 5px 0;
+  align-items: center;
+
+  &:hover {
+    background-color: lighten($secondary-dark, 5%);
+  }
+}
+
+.market-cell {
+  .symbol {
+    font-weight: 600;
+  }
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-success {
+  color: $success-green;
+}
+
+.text-danger {
+  color: $danger-red;
+}
+
+.loading-indicator {
+  color: $text-muted;
+  text-align: center;
+  padding: 20px;
+}

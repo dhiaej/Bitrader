@@ -1,0 +1,122 @@
+﻿<div class="app-container">
+  <!-- Market Ticker Bar (only shown when logged in) -->
+  <app-market-ticker *ngIf="showNavbar"></app-market-ticker>
+
+  <!-- Top Navbar (only shown when logged in and not on login/register) -->
+  <nav class="top-navbar" *ngIf="showNavbar">
+    <div class="navbar-content">
+      <!-- Logo Section -->
+      <div class="navbar-logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="logo-text">Bitrader</span>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="navbar-links">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+            <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+            <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+            <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/trade" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 16L11 12L15 14L21 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Market</span>
+        </a>
+        <a routerLink="/simulator" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 3L6 1M16 3L18 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Simulator</span>
+        </a>
+        <a routerLink="/orderbook" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6H21M3 12H21M3 18H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M17 16L21 20M21 16L17 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Order Book</span>
+        </a>
+        <a routerLink="/p2p" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+            <circle cx="15" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+            <path d="M3 21V18C3 16.3431 4.34315 15 6 15H12C13.6569 15 15 16.3431 15 18V21" stroke="currentColor" stroke-width="2"/>
+            <path d="M15 15H18C19.6569 15 21 16.3431 21 18V21" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>P2P Market</span>
+        </a>
+        <a routerLink="/disputes" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <span>Disputes</span>
+        </a>
+        <a routerLink="/wallet" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="6" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M2 10H22" stroke="currentColor" stroke-width="2"/>
+            <circle cx="17" cy="14" r="2" fill="currentColor"/>
+          </svg>
+          <span>Wallet</span>
+        </a>
+        <a routerLink="/forum" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Forum</span>
+        </a>
+        <a routerLink="/formations" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 6.25278V19.2528M12 6.25278C10.8321 5.47686 9.24649 5 7.5 5C5.75351 5 4.16789 5.47686 3 6.25278V19.2528C4.16789 18.4769 5.75351 18 7.5 18C9.24649 18 10.8321 18.4769 12 19.2528M12 6.25278C13.1679 5.47686 14.7535 5 16.5 5C18.2465 5 19.8321 5.47686 21 6.25278V19.2528C19.8321 18.4769 18.2465 18 16.5 18C14.7535 18 13.1679 18.4769 12 19.2528" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Formations</span>
+        </a>
+        <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M4 20C4 17.2386 7.58172 15 12 15C16.4183 15 20 17.2386 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Profile</span>
+        </a>
+        <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link" *ngIf="currentUser?.is_admin">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 15V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 15C6 15 5 17 5 19C5 21 7 22 12 22C17 22 19 21 19 19C19 17 18 15 18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 2L4 7V11C4 15.5 8 19 12 19C16 19 20 15.5 20 11V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Admin</span>
+        </a>
+      </div>
+
+      <!-- User Menu -->
+      <div class="navbar-user">
+        <button class="logout-btn" (click)="logout()" title="Logout">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <div class="main-content" [class.with-navbar]="showNavbar">
+    <router-outlet />
+  </div>
+</div>

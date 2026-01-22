@@ -1,0 +1,387 @@
+@use "sass:color";
+
+// Design System Variables
+$bg-primary: #0b0e11;
+$bg-secondary: #1E2329;
+$bg-card: #1E2026;
+$border-color: #2B3139;
+$text-primary: #eaecef;
+$text-secondary: #848E9C;
+$accent-gold: #F0B90B;
+$accent-green: #02c076;
+$accent-red: #f6465d;
+$accent-blue: #3B82F6;
+
+.course-generator-container {
+  background: $bg-primary;
+  color: $text-primary;
+  min-height: 100vh;
+  width: 100%;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.generator-header {
+  margin-bottom: 30px;
+  text-align: center;
+  
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    background: linear-gradient(135deg, $accent-gold, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .subtitle {
+    color: $text-secondary;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+.generator-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.selection-card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 24px;
+  
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 20px 0;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: $text-primary;
+      margin-bottom: 8px;
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      background: $bg-secondary;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      color: $text-primary;
+      font-size: 14px;
+      transition: all 0.2s;
+      
+      &:focus {
+        outline: none;
+        border-color: $accent-gold;
+        background: #252930;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  .btn-generate {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, $accent-gold, #d9a009);
+    border: none;
+    border-radius: 8px;
+    color: $bg-primary;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($accent-gold, 0.3);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba($bg-primary, 0.3);
+      border-top-color: $bg-primary;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
+}
+
+.error-message {
+  background: rgba($accent-red, 0.1);
+  border: 1px solid rgba($accent-red, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  
+  p {
+    margin: 0;
+    color: $accent-red;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.course-preview {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 24px;
+  
+  .preview-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid $border-color;
+    
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 4px 0;
+    }
+    
+    .preview-note {
+      color: $text-secondary;
+      font-size: 12px;
+      margin: 0;
+    }
+  }
+  
+  .course-info {
+    margin-bottom: 24px;
+    
+    .course-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: $accent-gold;
+      margin: 0 0 12px 0;
+    }
+    
+    .course-description {
+      color: $text-secondary;
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0 0 16px 0;
+    }
+    
+    .course-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      
+      .meta-item {
+        font-size: 13px;
+        color: $text-secondary;
+        
+        strong {
+          color: $text-primary;
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+  
+  .lessons-preview,
+  .quiz-preview {
+    margin-bottom: 24px;
+    
+    h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 16px 0;
+    }
+  }
+  
+  .lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .lesson-preview-item {
+    background: $bg-secondary;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    padding: 16px;
+    
+    .lesson-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      
+      .lesson-icon {
+        font-size: 20px;
+      }
+      
+      .lesson-title {
+        flex: 1;
+        font-size: 15px;
+        font-weight: 600;
+        color: $text-primary;
+      }
+      
+      .lesson-duration {
+        font-size: 12px;
+        color: $text-secondary;
+      }
+    }
+    
+    .lesson-preview {
+      font-size: 13px;
+      color: $text-secondary;
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+  
+  .questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .question-preview {
+    background: $bg-secondary;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    padding: 16px;
+    
+    .question-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 12px 0;
+    }
+    
+    .options-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      li {
+        font-size: 13px;
+        color: $text-secondary;
+        padding: 8px 12px;
+        background: $bg-card;
+        border-radius: 6px;
+        border: 1px solid $border-color;
+        
+        &.correct {
+          background: rgba($accent-green, 0.1);
+          border-color: rgba($accent-green, 0.3);
+          color: $accent-green;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+  
+  .preview-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid $border-color;
+    
+    button {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      
+      &.btn-save {
+        background: $accent-green;
+        color: white;
+        
+        &:hover:not(:disabled) {
+          background: color.adjust($accent-green, $lightness: -10%);
+          transform: translateY(-1px);
+        }
+      }
+      
+      &.btn-cancel {
+        background: $bg-secondary;
+        border: 1px solid $border-color;
+        color: $text-primary;
+        
+        &:hover:not(:disabled) {
+          background: #252930;
+          border-color: #3B4049;
+        }
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(white, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .course-generator-container {
+    padding: 20px;
+  }
+  
+  .generator-header h1 {
+    font-size: 24px;
+  }
+  
+  .preview-actions {
+    flex-direction: column;
+  }
+}
+

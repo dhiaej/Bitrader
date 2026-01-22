@@ -1,0 +1,255 @@
+<div class="orderbook-container">
+  <!-- Simple Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="back-btn" routerLink="/dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back
+      </button>
+      <h1>Order Book - {{ selectedInstrument }}</h1>
+    </div>
+
+    <div class="header-controls">
+      <div class="control-group">
+        <label>Depth</label>
+        <select [(ngModel)]="depthLimit" (change)="loadOrderBook()">
+          <option [value]="10">10</option>
+          <option [value]="15">15</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Group</label>
+        <select [(ngModel)]="priceGrouping">
+          <option [value]="0.01">2 decimals</option>
+          <option [value]="0.1">1 decimal</option>
+          <option [value]="1">0 decimals</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instrument Selector -->
+  <div class="instrument-bar">
+    <button
+      *ngFor="let instrument of instruments"
+      [class.active]="instrument === selectedInstrument"
+      (click)="onInstrumentChange(instrument)"
+      class="instrument-btn"
+    >
+      {{ instrument }}
+    </button>
+  </div>
+
+  <div class="orderbook-content">
+    <!-- Split View: Buy Orders Left, Sell Orders Right -->
+    <div class="orderbook-split">
+      <!-- Buy Orders (Left Side) -->
+      <div class="order-side buy-side">
+        <div class="side-header">
+          <h2>Buy Order</h2>
+        </div>
+
+        <div class="order-table">
+          <div class="table-header">
+            <span>Price (USDT)</span>
+            <span>Amount (BTC)</span>
+            <span>Total (USDT)</span>
+            <span>Sum (USDT)</span>
+          </div>
+
+          <div class="table-body">
+            <div class="order-row buy" *ngFor="let bid of orderBook?.bids ?? []; let i = index" (click)="fillOrderForm('BUY', bid.price)">
+              <span class="price">{{ formatPrice(bid.price) }}</span>
+              <span class="amount">{{ formatQuantity(bid.quantity) }}</span>
+              <span class="total">{{ formatPrice(bid.price * bid.quantity) }}</span>
+              <span class="sum">{{ formatPrice(getCumulativeSum(orderBook?.bids ?? [], i)) }}</span>
+            </div>
+            <div class="no-orders" *ngIf="!orderBook?.bids || orderBook?.bids?.length === 0">
+              No buy orders
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sell Orders (Right Side) -->
+      <div class="order-side sell-side">
+        <div class="side-header">
+          <h2>Sell Order</h2>
+        </div>
+
+        <div class="order-table">
+          <div class="table-header">
+            <span>Price (USDT)</span>
+            <span>Amount (BTC)</span>
+            <span>Total (USDT)</span>
+            <span>Sum (USDT)</span>
+          </div>
+
+          <div class="table-body">
+            <div class="order-row sell" *ngFor="let ask of (orderBook?.asks ?? []).slice().reverse(); let i = index" (click)="fillOrderForm('SELL', ask.price)">
+              <span class="price">{{ formatPrice(ask.price) }}</span>
+              <span class="amount">{{ formatQuantity(ask.quantity) }}</span>
+              <span class="total">{{ formatPrice(ask.price * ask.quantity) }}</span>
+              <span class="sum">{{ formatPrice(getCumulativeSum(orderBook?.asks ?? [], (orderBook?.asks?.length ?? 0) - 1 - i)) }}</span>
+            </div>
+            <div class="no-orders" *ngIf="!orderBook?.asks || orderBook?.asks?.length === 0">
+              No sell orders
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Form Panel -->
+  <div class="order-form-section">
+    <div class="order-form-panel">
+      <div class="panel-header">
+        <h2>Place Order</h2>
+      </div>
+
+      <div class="panel-content">
+      <!-- Order Type Toggle -->
+      <div class="order-type-toggle">
+        <button
+          [class.active]="orderType === 'BUY'"
+          (click)="setOrderType('BUY')"
+          class="toggle-btn buy"
+        >
+          Buy
+        </button>
+        <button
+          [class.active]="orderType === 'SELL'"
+          (click)="setOrderType('SELL')"
+          class="toggle-btn sell"
+        >
+          Sell
+        </button>
+      </div>
+
+      <!-- Order Subtype Toggle -->
+      <div class="order-subtype-toggle">
+        <button
+          [class.active]="orderSubtype === 'LIMIT'"
+          (click)="setOrderSubtype('LIMIT')"
+          class="subtype-btn"
+        >
+          Limit
+        </button>
+        <button
+          [class.active]="orderSubtype === 'MARKET'"
+          (click)="setOrderSubtype('MARKET')"
+          class="subtype-btn"
+        >
+          Market
+        </button>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="order-form">
+        <div class="form-group" *ngIf="orderSubtype === 'LIMIT'">
+          <label>Price (USD)</label>
+          <input
+            type="number"
+            formControlName="price"
+            placeholder="0.00"
+            step="0.01"
+            min="0.01"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Amount ({{ selectedInstrument.split('/')[0] }})</label>
+          <input
+            type="number"
+            formControlName="quantity"
+            placeholder="0.00000000"
+            step="0.00000001"
+            min="0.00000001"
+          />
+        </div>
+
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Total:</span>
+            <span class="value">{{ formatPrice(calculateTotal()) }} USD</span>
+          </div>
+          <div class="summary-row">
+            <span>Fee (0.1%):</span>
+            <span class="value">{{ formatPrice(calculateTotal() * 0.001) }} USD</span>
+          </div>
+        </div>
+
+        <div class="alert error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="alert success" *ngIf="successMessage">
+          {{ successMessage }}
+        </div>
+
+        <button
+          type="submit"
+          [class]="orderType === 'BUY' ? 'btn-buy' : 'btn-sell'"
+          [disabled]="isLoading || (orderForm.invalid && orderSubtype === 'LIMIT')"
+        >
+          <span *ngIf="!isLoading">{{ orderType }} {{ selectedInstrument.split('/')[0] }}</span>
+          <span *ngIf="isLoading">Placing Order...</span>
+        </button>
+      </form>
+    </div>
+  </div>
+  </div>
+
+  <!-- My Orders -->
+  <div class="my-orders-panel" *ngIf="myOrders.length > 0">
+    <div class="panel-header">
+      <h2>My Open Orders</h2>
+    </div>
+
+    <div class="orders-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Amount</th>
+            <th>Remaining</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of myOrders">
+            <td>
+              <span [class]="order.order_type === 'BUY' ? 'badge-buy' : 'badge-sell'">
+                {{ order.order_type }}
+              </span>
+            </td>
+            <td>{{ formatPrice(order.price || 0) }}</td>
+            <td>{{ formatQuantity(order.quantity) }}</td>
+            <td>{{ formatQuantity(order.remaining_quantity || 0) }}</td>
+            <td>
+              <span [class]="'badge-' + order.status?.toLowerCase()">
+                {{ order.status }}
+              </span>
+            </td>
+            <td>
+              <button
+                class="btn-cancel"
+                (click)="cancelOrder(order.id!)"
+                *ngIf="order.status === 'PENDING' || order.status === 'PARTIALLY_FILLED'"
+              >
+                Cancel
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

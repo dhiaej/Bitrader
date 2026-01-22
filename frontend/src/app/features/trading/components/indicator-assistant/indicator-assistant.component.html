@@ -1,0 +1,217 @@
+<div class="assistant-panel">
+  <!-- Header with status indicator -->
+  <div class="panel-header">
+    <div class="header-left">
+      <div class="status-indicator" [class.loading]="loading" [class.active]="!loading && insight"></div>
+      <h3>
+        <svg class="header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        AI Market Assistant
+      </h3>
+      <span class="symbol-tag">{{ symbol }}</span>
+    </div>
+    <div class="header-actions">
+      <span class="update-time" *ngIf="lastUpdateTime && !loading">
+        Updated {{ lastUpdateTime | date:'HH:mm:ss' }}
+      </span>
+      <button class="refresh-btn" (click)="fetchInsights()" [disabled]="loading" title="Refresh Analysis">
+        <svg class="refresh-icon" [class.spinning]="loading" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M20.49 9C19.9 7.56 18.96 6.28 17.73 5.27C16.5 4.26 15.03 3.56 13.45 3.22C11.88 2.88 10.24 2.91 8.68 3.31C7.12 3.72 5.68 4.48 4.49 5.54L1 9M23 15L19.51 18.46C18.32 19.52 16.88 20.28 15.32 20.69C13.76 21.09 12.12 21.12 10.55 20.78C8.97 20.44 7.5 19.74 6.27 18.73C5.04 17.72 4.1 16.44 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <span>Analyzing {{ symbol }} market data...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <svg class="error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>{{ error }}</span>
+    <button class="retry-btn" (click)="fetchInsights()">Retry</button>
+  </div>
+
+  <!-- Main Content -->
+  <ng-container *ngIf="insight && !loading && !error">
+    <!-- Quick Stats Row -->
+    <div class="quick-stats-row">
+      <!-- Current Price Card -->
+      <div class="stat-card price-card" *ngIf="getDisplayPrice() !== null">
+        <div class="stat-label">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 6V18M9 9C9 7.9 10.34 7 12 7C13.66 7 15 7.9 15 9C15 10.1 13.66 11 12 11C10.34 11 9 11.9 9 13C9 14.1 10.34 15 12 15C13.66 15 15 14.1 15 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Current Price
+          <span class="price-source">({{ getPriceSource() }})</span>
+        </div>
+        <div class="stat-value price-value">
+          ${{ getDisplayPrice() | number:'1.2-4' }}
+        </div>
+      </div>
+
+      <!-- Sentiment Card -->
+      <div class="stat-card sentiment-stat-card">
+        <div class="stat-label">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 14L11 10L15 12L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Fear & Greed Index
+        </div>
+        <div class="stat-value sentiment-value" [style.color]="getSentimentColor()">
+          {{ getSentimentScore() }}
+          <span class="sentiment-label">{{ getSentimentLabel() }}</span>
+        </div>
+      </div>
+
+      <!-- Risk Card -->
+      <div class="stat-card risk-stat-card">
+        <div class="stat-label">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 22H22L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 9V13M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Risk Level
+        </div>
+        <div class="stat-value">
+          <span class="risk-badge" [style.background]="getRiskColor()">
+            {{ insight.risk_level | titlecase }}
+          </span>
+        </div>
+      </div>
+
+      <!-- 24h Change Card -->
+      <div class="stat-card change-card" *ngIf="getChange24h() !== null">
+        <div class="stat-label">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17 6H23V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          24h Change
+        </div>
+        <div class="stat-value" [class.positive]="(getChange24h() ?? 0) > 0" [class.negative]="(getChange24h() ?? 0) < 0">
+          {{ formatChange24h() }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="two-column-layout">
+      <!-- Left Column: Indicators & Analysis -->
+      <div class="left-column">
+        <!-- Key Indicators Grid -->
+        <div class="card indicators-card">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Technical Indicators</span>
+          </div>
+          <div class="indicators-grid" *ngIf="insight.indicators">
+            <div class="indicator-item" *ngIf="getRsi14() !== null">
+              <div class="indicator-label">RSI (14)</div>
+              <div class="indicator-value" [class.overbought]="(getRsi14() ?? 0) > 70" [class.oversold]="(getRsi14() ?? 0) < 30">
+                {{ getRsi14() | number:'1.1-1' }}
+              </div>
+              <div class="indicator-status">
+                <span *ngIf="(getRsi14() ?? 50) > 70" class="status-overbought">Overbought</span>
+                <span *ngIf="(getRsi14() ?? 50) < 30" class="status-oversold">Oversold</span>
+                <span *ngIf="(getRsi14() ?? 50) >= 30 && (getRsi14() ?? 50) <= 70" class="status-neutral">Neutral</span>
+              </div>
+            </div>
+            <div class="indicator-item" *ngIf="getMacd() !== null">
+              <div class="indicator-label">MACD</div>
+              <div class="indicator-value" [class.positive]="(getMacd() ?? 0) > 0" [class.negative]="(getMacd() ?? 0) < 0">
+                {{ getMacd() | number:'1.2-2' }}
+              </div>
+              <div class="indicator-status">
+                <span *ngIf="(getMacd() ?? 0) > 0" class="status-bullish">Bullish</span>
+                <span *ngIf="(getMacd() ?? 0) < 0" class="status-bearish">Bearish</span>
+              </div>
+            </div>
+            <div class="indicator-item" *ngIf="insight.indicators['sma50']">
+              <div class="indicator-label">SMA (50)</div>
+              <div class="indicator-value">
+                {{ insight.indicators['sma50'] | number:'1.2-2' }}
+              </div>
+            </div>
+            <div class="indicator-item" *ngIf="insight.indicators['ema20']">
+              <div class="indicator-label">EMA (20)</div>
+              <div class="indicator-value">
+                {{ insight.indicators['ema20'] | number:'1.2-2' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Summary Card -->
+        <div class="card summary-card">
+          <div class="card-header clickable" (click)="toggleDetails()">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>AI Analysis Summary</span>
+            <button class="toggle-btn">{{ showDetails ? '−' : '+' }}</button>
+          </div>
+          <div class="summary-content" *ngIf="showDetails">
+            <p class="summary-text" [innerHTML]="formatAnalysisText(insight.summary)"></p>
+            <ul class="bullets" *ngIf="insight.bullets?.length">
+              <li *ngFor="let b of insight.bullets" [innerHTML]="formatAnalysisText(b)"></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: News -->
+      <div class="right-column">
+        <div class="card news-card">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 7H16M8 11H16M8 15H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Market News</span>
+            <span class="news-count" *ngIf="insight.news?.length">{{ insight.news.length }}</span>
+          </div>
+          <div class="news-list-container" *ngIf="insight.news?.length; else noNews">
+            <div class="news-item" *ngFor="let n of insight.news" [class.high-impact]="n.impact === 'high'">
+              <div class="news-impact" *ngIf="n.impact" [class]="'impact-' + n.impact">
+                {{ n.impact | titlecase }}
+              </div>
+              <a *ngIf="n.url" [href]="n.url" target="_blank" rel="noopener noreferrer" class="news-title">
+                {{ n.title }}
+              </a>
+              <span *ngIf="!n.url" class="news-title">{{ n.title }}</span>
+              <div class="news-meta" *ngIf="n.source">
+                <span class="news-source">{{ n.source }}</span>
+                <span class="news-time" *ngIf="n.published_at">{{ n.published_at | date:'short' }}</span>
+              </div>
+            </div>
+          </div>
+          <ng-template #noNews>
+            <div class="no-news-message">
+              <svg class="no-news-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M9 9L15 15M15 9L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span>No market news available at this time.</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

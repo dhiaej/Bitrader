@@ -1,0 +1,36 @@
+"""Routers package"""
+from . import (
+    auth,
+    wallet,
+    orderbook,
+    p2p,
+    escrow,
+    dispute,
+    reputation,
+    user,
+    indicator_insights,
+    market_data,
+    ai_assistant,
+    price_prediction,
+    trading,
+    simulator,
+    formations,
+)
+
+__all__ = [
+    "auth",
+    "wallet",
+    "orderbook",
+    "p2p",
+    "escrow",
+    "dispute",
+    "reputation",
+    "user",
+    "indicator_insights",
+    "market_data",
+    "ai_assistant",
+    "price_prediction",
+    "trading",
+    "simulator",
+    "formations",
+]
